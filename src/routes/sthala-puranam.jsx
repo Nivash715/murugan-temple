@@ -5,6 +5,7 @@ import { PageHero } from "@/components/PageHero";
 import manuscript from "@/assets/temple-manuscript.jpg";
 import kolam from "@/assets/kolam-ornament.png";
 import templeNight from "@/assets/m12.jpeg";
+import templeNightNew from "@/assets/8.jpeg";
 import { Flame, Heart, Moon } from "lucide-react";
 
 export const Route = createFileRoute("/sthala-puranam")({
@@ -129,7 +130,7 @@ function SthalaPuranam() {
               <div className="absolute -inset-3 bg-gradient-sunset rounded-3xl blur-3xl opacity-20 pointer-events-none" />
               <div className="relative rounded-3xl overflow-hidden border-2 border-brass/40 shadow-temple aspect-[4/3]">
                 <img
-                  src={templeNight}
+                  src={ templeNightNew }
                   alt="ஸ்ரீ வள்ளி தேவசேனா சமய சுப்ரமணியர் ஆலயம் — இரவு அலங்காரம்"
                   className="h-full w-full object-cover"
                   loading="lazy"
