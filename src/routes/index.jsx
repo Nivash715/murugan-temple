@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import gopuram from "@/assets/temple-gopuram.jpg";
+import gopuram from "@/assets/18.jpeg";
 import deepam from "@/assets/temple-deepam.jpg";
 import manuscript from "@/assets/temple-manuscript.jpg";
 import carvings from "@/assets/m15.jpeg";
@@ -13,7 +13,7 @@ import kolam from "@/assets/kolam-ornament.png";
 import navCalendar from "@/assets/Murugan-3.jpeg";
 import muruganDeity from "@/assets/m12.jpeg";
 import muruganVel from "@/assets/murugan-vel.png";
-import deityGanesha from "@/assets/vina.webp";
+import deityGanesha from "@/assets/5.jpeg";
 import { ArrowUpRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
