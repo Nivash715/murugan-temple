@@ -7,10 +7,10 @@ import manuscript from "@/assets/temple-manuscript.jpg";
 import carvings from "@/assets/m15.jpeg";
 import pooja from "@/assets/m16.jpeg";
 import festival from "@/assets/m14.jpeg";
-import priest from "@/assets/temple-priest.jpg";
-import donation from "@/assets/temple-donation.jpg";
+import priest from "@/assets/achakar.jpg";
+import donation from "@/assets/Donation.jpg";
 import kolam from "@/assets/kolam-ornament.png";
-import navCalendar from "@/assets/calender-3.png";
+import navCalendar from "@/assets/Murugan-3.jpeg";
 import muruganDeity from "@/assets/m12.jpeg";
 import muruganVel from "@/assets/murugan-vel.png";
 import deityGanesha from "@/assets/vina.webp";
@@ -89,7 +89,7 @@ const sections = [
   {
     to: "/priest",
     tamil: "அர்ச்சகர் & நிர்வாகம்",
-    en: "Priest & Admin",
+    en: "Priest & Management",
     desc: "அர்ச்சகர் விவரம், தொடர்பு, நிர்வாகம்",
     image: priest,
   },

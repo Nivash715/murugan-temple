@@ -3,11 +3,11 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero } from "@/components/PageHero";
-import ganesha from "@/assets/vina.webp";
+import ganesha from "@/assets/20.jpeg";
 import murugan from "@/assets/5.jpeg";
 import valliyammai from "@/assets/2.jpeg";
-import dheivayanai from "@/assets/3.jpeg";
-import idumban from "@/assets/4.jpeg";
+import dheivayanai from "@/assets/4.jpeg";
+import idumban from "@/assets/21.jpeg";
 import vishnu from "@/assets/perumal.jpg";
 import { Sparkles, Clock, CalendarHeart, Flame } from "lucide-react";
 

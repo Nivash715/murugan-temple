@@ -38,14 +38,14 @@ export function SiteFooter() {
         src={kolam}
         alt=""
         aria-hidden
-        className="absolute -right-10 -bottom-10 w-44 opacity-20 animate-spin-slow pointer-events-none select-none"
+        className="absolute -right-10 -bottom-10 w-44 opacity-130 animate-spin-slow pointer-events-none select-none"
       />
       {/* Decorative kolam left */}
       <img
         src={kolam}
         alt=""
         aria-hidden
-        className="absolute -left-10 -bottom-10 w-44 opacity-20 animate-spin-slow pointer-events-none select-none"
+        className="absolute -left-10 -bottom-10 w-44 opacity-130 animate-spin-slow pointer-events-none select-none"
         style={{ animationDirection: "reverse" }}
       />
 
@@ -59,7 +59,7 @@ export function SiteFooter() {
           {/* Temple name */}
           <div className="flex flex-col items-center sm:items-start gap-0.5 text-center sm:text-left">
             <span className="font-display italic text-brass/70 tracking-[0.2em] text-[0.58rem] uppercase">
-              Sri Subramaniyar Temple
+              Sri Valli Devasena Subramaniyar Temple
             </span>
             <h2 className="font-tamil text-parchment font-bold text-base sm:text-lg leading-snug">
               ஸ்ரீ வள்ளி தேவசேனா சமய சுப்ரமணியர் ஆலயம்

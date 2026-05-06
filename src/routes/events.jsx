@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero } from "@/components/PageHero";
-import pooja from "@/assets/temple-pooja.jpg";
+import pooja from "@/assets/2.jpeg";
 import festival from "@/assets/temple-festival.jpg";
 import murugan from "@/assets/Murugan-1.jpeg";
 import video1 from "@/assets/video2.mp4";
