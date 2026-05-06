@@ -1,0 +1,319 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Tamil + display fonts */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+Tamil:wght@400;500;600;700;800&family=Catamaran:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap");
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brass: var(--brass);
+  --color-brass-deep: var(--brass-deep);
+  --color-vermillion: var(--vermillion);
+  --color-ink: var(--ink);
+  --color-parchment: var(--parchment);
+
+  --font-display: "Cormorant Garamond", serif;
+  --font-tamil: "Noto Serif Tamil", serif;
+  --font-tamil-sans: "Catamaran", "Noto Sans Tamil", sans-serif;
+  --font-sans: "Catamaran", system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* Parchment / temple wall base */
+  --background: oklch(0.96 0.02 75);
+  --foreground: oklch(0.22 0.04 35);
+
+  --card: oklch(0.98 0.015 80);
+  --card-foreground: oklch(0.22 0.04 35);
+  --popover: oklch(0.98 0.015 80);
+  --popover-foreground: oklch(0.22 0.04 35);
+
+  /* Deep maroon / kumkumam */
+  --primary: oklch(0.38 0.13 25);
+  --primary-foreground: oklch(0.97 0.02 80);
+
+  --secondary: oklch(0.92 0.03 75);
+  --secondary-foreground: oklch(0.3 0.06 30);
+
+  --muted: oklch(0.92 0.025 75);
+  --muted-foreground: oklch(0.45 0.04 40);
+
+  /* Brass gold */
+  --accent: oklch(0.72 0.14 70);
+  --accent-foreground: oklch(0.18 0.04 30);
+
+  --destructive: oklch(0.55 0.22 28);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  --border: oklch(0.85 0.04 70);
+  --input: oklch(0.88 0.03 70);
+  --ring: oklch(0.55 0.15 50);
+
+  /* Custom temple tokens */
+  --brass: oklch(0.72 0.14 70);
+  --brass-deep: oklch(0.55 0.13 60);
+  --vermillion: oklch(0.5 0.2 28);
+  --ink: oklch(0.18 0.03 35);
+  --parchment: oklch(0.96 0.02 75);
+
+  --gradient-sunset: linear-gradient(
+    135deg,
+    oklch(0.38 0.13 25) 0%,
+    oklch(0.5 0.2 28) 50%,
+    oklch(0.72 0.14 70) 100%
+  );
+  --gradient-brass: linear-gradient(180deg, oklch(0.78 0.13 75), oklch(0.55 0.13 60));
+  --gradient-parchment: radial-gradient(ellipse at top, oklch(0.97 0.02 80), oklch(0.92 0.03 70));
+  --gradient-sanctum: linear-gradient(180deg, oklch(0.18 0.03 35) 0%, oklch(0.12 0.02 30) 100%);
+
+  --shadow-temple: 0 30px 80px -30px oklch(0.38 0.13 25 / 0.35);
+  --shadow-brass: 0 10px 40px -12px oklch(0.55 0.13 60 / 0.55);
+  --shadow-soft: 0 4px 30px -8px oklch(0.3 0.06 30 / 0.18);
+}
+
+.dark {
+  --background: oklch(0.14 0.02 30);
+  --foreground: oklch(0.95 0.02 75);
+  --card: oklch(0.18 0.03 30);
+  --card-foreground: oklch(0.95 0.02 75);
+  --popover: oklch(0.18 0.03 30);
+  --popover-foreground: oklch(0.95 0.02 75);
+  --primary: oklch(0.72 0.14 70);
+  --primary-foreground: oklch(0.18 0.03 30);
+  --secondary: oklch(0.25 0.04 30);
+  --secondary-foreground: oklch(0.95 0.02 75);
+  --muted: oklch(0.22 0.03 30);
+  --muted-foreground: oklch(0.7 0.04 70);
+  --accent: oklch(0.55 0.2 28);
+  --accent-foreground: oklch(0.95 0.02 75);
+  --destructive: oklch(0.65 0.2 28);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.15);
+  --ring: oklch(0.72 0.14 70);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-tamil-sans);
+    background-image:
+      radial-gradient(circle at 20% 10%, oklch(0.72 0.14 70 / 0.08), transparent 50%),
+      radial-gradient(circle at 80% 90%, oklch(0.5 0.2 28 / 0.06), transparent 50%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-tamil);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Subtle grain overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.1  0 0 0 0 0.05  0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    z-index: 1;
+  }
+}
+
+@layer utilities {
+  .font-tamil {
+    font-family: var(--font-tamil);
+  }
+  .font-tamil-sans {
+    font-family: var(--font-tamil-sans);
+  }
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .bg-gradient-sunset {
+    background-image: var(--gradient-sunset);
+  }
+  .bg-gradient-brass {
+    background-image: var(--gradient-brass);
+  }
+  .bg-gradient-parchment {
+    background-image: var(--gradient-parchment);
+  }
+  .bg-gradient-sanctum {
+    background-image: var(--gradient-sanctum);
+  }
+
+  .shadow-temple {
+    box-shadow: var(--shadow-temple);
+  }
+  .shadow-brass {
+    box-shadow: var(--shadow-brass);
+  }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .text-brass {
+    color: var(--brass);
+  }
+  .text-brass-deep {
+    color: var(--brass-deep);
+  }
+  .text-vermillion {
+    color: var(--vermillion);
+  }
+  .text-ink {
+    color: var(--ink);
+  }
+
+  .bg-ink {
+    background-color: var(--ink);
+  }
+  .bg-brass {
+    background-color: var(--brass);
+  }
+  .bg-vermillion {
+    background-color: var(--vermillion);
+  }
+  .bg-parchment {
+    background-color: var(--parchment);
+  }
+
+  .border-brass {
+    border-color: var(--brass);
+  }
+
+  /* Decorative ornament line */
+  .ornament-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--brass-deep);
+  }
+  .ornament-divider::before,
+  .ornament-divider::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    max-width: 8rem;
+    background: linear-gradient(90deg, transparent, var(--brass), transparent);
+  }
+
+  /* Vertical Tamil chip */
+  .tamil-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.9rem;
+    border: 1px solid color-mix(in oklab, var(--brass) 50%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--brass) 10%, transparent);
+    color: var(--brass-deep);
+    font-family: var(--font-tamil-sans);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .drop-cap::first-letter {
+    font-family: var(--font-tamil);
+    font-size: 3rem;
+    line-height: 0.9;
+    float: left;
+    padding: 0.4rem 0.6rem 0 0;
+    color: var(--vermillion);
+    font-weight: 700;
+  }
+  @media (min-width: 640px) {
+    .drop-cap::first-letter {
+      font-size: 4.5rem;
+      padding: 0.4rem 0.7rem 0 0;
+    }
+  }
+
+  .relative-z {
+    position: relative;
+    z-index: 2;
+  }
+
+  @keyframes flicker {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1.04);
+    }
+  }
+  .animate-flicker {
+    animation: flicker 2.4s ease-in-out infinite;
+  }
+
+  @keyframes float-slow {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  .animate-float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+  }
+
+  @keyframes spin-slow {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .animate-spin-slow {
+    animation: spin-slow 60s linear infinite;
+  }
+}
