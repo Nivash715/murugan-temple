@@ -277,7 +277,7 @@ function DonatePage() {
             </p>
             <div className="mt-4 font-tamil-sans text-sm text-ink/70 space-y-1">
               <div>📞 +91 98765 43210</div>
-              <div>✉️ info@srimuruganalayam.org</div>
+              <div>✉️ gokulsaravanana663@gmail.com</div>
               <div>🕕 காலை 6:00 — மாலை 9:00</div>
             </div>
             <div className="mt-auto pt-6 grid sm:grid-cols-2 gap-3">

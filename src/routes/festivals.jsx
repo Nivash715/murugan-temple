@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero } from "@/components/PageHero";
-import festivalImg from "@/assets/temple-festival.jpg";
+import festivalImg from "@/assets/7.jpeg";
 import { Eye, Star, Flame } from "lucide-react";
 
 export const Route = createFileRoute("/festivals")({
