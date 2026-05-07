@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Lock, User, ShieldCheck, ArrowLeft } from "lucide-react";
+import { Lock, User, ShieldCheck, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import logoImg from "@/assets/m12.jpeg";
 import kolam from "@/assets/kolam-ornament.png";
 import { useAuth } from "@/lib/admin-auth";
-import { useContent as useSiteContent } from "@/lib/content-store";
+import { useContent as useSiteContent, useImage } from "@/lib/content-store";
 
 export const Route = createFileRoute("/admin_/login")({
   head: () => ({
@@ -23,9 +23,11 @@ function AdminLoginPage() {
   const navigate = useNavigate();
   const { isAuthed, login } = useAuth();
   const { content } = useSiteContent();
+  const logoSrc = useImage("logo", logoImg);
 
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -86,7 +88,7 @@ function AdminLoginPage() {
           {/* Header */}
           <div className="flex flex-col items-center text-center">
             <div className="h-16 w-16 rounded-2xl overflow-hidden border border-brass/40 shadow-brass">
-              <img src={logoImg} alt="Temple logo" className="h-full w-full object-cover" />
+              <img src={logoSrc} alt="Temple logo" className="h-full w-full object-cover" />
             </div>
             <h1 className="mt-4 font-tamil text-2xl sm:text-3xl font-bold text-ink leading-tight">
               நிர்வாக நுழைவு
@@ -122,15 +124,25 @@ function AdminLoginPage() {
                 <Lock size={14} className="text-brass-deep" />
                 கடவுச்சொல் <span className="text-ink/40 font-display italic">/ Password</span>
               </span>
-              <input
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="mt-1.5 w-full rounded-xl border border-brass/40 bg-parchment/80 px-4 py-2.5 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-vermillion/40 focus:border-vermillion transition"
-                placeholder="••••••••"
-              />
+              <div className="relative mt-1.5">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full rounded-xl border border-brass/40 bg-parchment/80 px-4 py-2.5 pr-11 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-vermillion/40 focus:border-vermillion transition"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute inset-y-0 right-2 my-auto inline-flex items-center justify-center h-9 w-9 rounded-lg text-ink/60 hover:text-vermillion hover:bg-brass/10 transition"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </label>
 
             {error && (

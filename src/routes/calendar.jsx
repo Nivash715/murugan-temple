@@ -15,8 +15,10 @@ import {
   Sunset,
   AlertTriangle,
   Flame,
+  StickyNote,
 } from "lucide-react";
 import muruganVel from "@/assets/murugan-vel.png";
+import { useContent, toLocalDateKey } from "@/lib/content-store";
 
 export const Route = createFileRoute("/calendar")({
   head: () => ({
@@ -259,10 +261,13 @@ function CalendarPage() {
   const today = new Date();
   const [view, setView] = useState({ y: today.getFullYear(), m: today.getMonth() });
   const [selected, setSelected] = useState(today);
+  const { content } = useContent();
+  const calendarNotes = content.calendarNotes || {};
 
   const { y, m } = view;
   const firstDay = new Date(y, m, 1).getDay();
   const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const noteForSelected = calendarNotes[toLocalDateKey(selected)];
 
   const cells = useMemo(() => {
     const arr = [];
@@ -376,17 +381,22 @@ function CalendarPage() {
               const fest = festivalMap[`${m + 1}-${d}`];
               const today_ = isToday(d);
               const sel = isSelected(d);
+              const cellDate = new Date(y, m, d);
+              const note = calendarNotes[toLocalDateKey(cellDate)];
               return (
                 <button
                   key={i}
                   type="button"
-                  onClick={() => setSelected(new Date(y, m, d))}
-                  className={`aspect-square rounded-lg sm:rounded-xl border p-1 sm:p-2 flex flex-col text-left transition-all hover:scale-105 ${
+                  onClick={() => setSelected(cellDate)}
+                  title={note ? note : undefined}
+                  className={`relative aspect-square rounded-lg sm:rounded-xl border p-1 sm:p-2 flex flex-col text-left transition-all hover:scale-105 ${
                     today_
                       ? "bg-vermillion text-parchment border-vermillion"
                       : sel
                         ? "bg-brass text-parchment border-brass-deep ring-2 ring-brass-deep"
-                        : "bg-parchment border-brass/20 hover:bg-brass/10"
+                        : note
+                          ? "bg-brass/10 border-brass-deep/60 ring-1 ring-brass-deep/40 hover:bg-brass/20"
+                          : "bg-parchment border-brass/20 hover:bg-brass/10"
                   }`}
                 >
                   <span
@@ -394,11 +404,24 @@ function CalendarPage() {
                   >
                     {d}
                   </span>
+                  {note && (
+                    <span
+                      aria-hidden
+                      className={`absolute top-1 right-1 h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full ${today_ || sel ? "bg-parchment" : "bg-vermillion"}`}
+                    />
+                  )}
                   {fest && (
                     <span
                       className={`mt-auto font-tamil text-[0.55rem] sm:text-[0.7rem] leading-tight truncate ${today_ || sel ? "text-parchment" : "text-vermillion"}`}
                     >
                       ★ {fest.ta}
+                    </span>
+                  )}
+                  {!fest && note && (
+                    <span
+                      className={`mt-auto font-tamil text-[0.55rem] sm:text-[0.7rem] leading-tight truncate ${today_ || sel ? "text-parchment" : "text-brass-deep"}`}
+                    >
+                      • {note}
                     </span>
                   )}
                 </button>
@@ -442,6 +465,21 @@ function CalendarPage() {
           <div className="font-tamil text-base sm:text-lg text-brass-deep mb-6">
             {selectedInfo.weekday} · {selectedInfo.tamilMonth.ta} ({selectedInfo.tamilMonth.en})
           </div>
+
+          {/* Admin-managed note for the selected date */}
+          {noteForSelected && (
+            <div className="mb-6 rounded-2xl border-2 border-vermillion/40 bg-gradient-to-br from-brass/15 to-vermillion/10 p-4 sm:p-5 shadow-brass/40">
+              <div className="flex items-center gap-2 text-vermillion mb-2">
+                <StickyNote size={16} />
+                <span className="font-display italic text-xs sm:text-sm tracking-[0.3em]">
+                  TEMPLE NOTE · ஆலயக் குறிப்பு
+                </span>
+              </div>
+              <p className="font-tamil-sans text-sm sm:text-base text-ink/85 leading-relaxed whitespace-pre-wrap">
+                {noteForSelected}
+              </p>
+            </div>
+          )}
 
           {/* Panchangam grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

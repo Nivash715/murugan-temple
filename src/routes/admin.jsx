@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LogOut,
   Save,
   RotateCcw,
   Eye,
+  EyeOff,
   Home as HomeIcon,
   LayoutGrid,
   Compass,
@@ -12,11 +13,28 @@ import {
   Plus,
   Trash2,
   Check,
+  Image as ImageIcon,
+  CalendarDays,
+  Upload,
+  StickyNote,
 } from "lucide-react";
 import logoImg from "@/assets/m12.jpeg";
 import kolam from "@/assets/kolam-ornament.png";
+import gopuram from "@/assets/temple-gopuram.jpg";
+import manuscript from "@/assets/temple-manuscript.jpg";
+import carvings from "@/assets/m15.jpeg";
+import deityGanesha from "@/assets/vina.webp";
+import pooja from "@/assets/m16.jpeg";
+import festival from "@/assets/m14.jpeg";
+import navCalendar from "@/assets/Murugan-3.jpeg";
+import priestImg from "@/assets/achakar.jpg";
+import donationImg from "@/assets/Donation.jpg";
+import muruganDeity from "@/assets/m12.jpeg";
+import gopuramHero from "@/assets/temple-gopuram.jpg";
 import { useAuth, DEFAULT_CREDENTIALS } from "@/lib/admin-auth";
-import { useContent, defaultContent } from "@/lib/content-store";
+import { useContent, defaultContent, toLocalDateKey } from "@/lib/content-store";
+import { fileToCompressedDataUrl } from "@/lib/image-upload";
+import { triggerLogoutToast } from "@/components/LogoutToast";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -25,7 +43,7 @@ export const Route = createFileRoute("/admin")({
       {
         name: "description",
         content:
-          "ஆலய இணையதள உள்ளடக்க நிர்வாக பலகை — தலைப்புகள், பகுதிகள், தனிப்பயனாக்கம்.",
+          "ஆலய இணையதள உள்ளடக்க நிர்வாக பலகை — தலைப்புகள், பகுதிகள், படங்கள், நாட்காட்டி குறிப்புகள்.",
       },
     ],
   }),
@@ -39,6 +57,8 @@ const TABS = [
   { id: "header", label: "தலைப்பு & வழிசெலுத்தல்", en: "Header & Navigation", icon: Compass },
   { id: "home", label: "முகப்பு பக்கம்", en: "Home Page", icon: HomeIcon },
   { id: "pages", label: "உள் பக்கங்கள்", en: "Inner Pages", icon: LayoutGrid },
+  { id: "images", label: "படங்கள்", en: "Images", icon: ImageIcon },
+  { id: "notes", label: "நாட்காட்டி குறிப்புகள்", en: "Calendar Notes", icon: CalendarDays },
   { id: "footer", label: "அடிக்குறிப்பு", en: "Footer", icon: Eye },
   { id: "account", label: "கணக்கு", en: "Account", icon: KeyRound },
 ];
@@ -46,7 +66,7 @@ const TABS = [
 /* -------------------------------------------------------------------------- */
 /*  Reusable form atoms                                                       */
 /* -------------------------------------------------------------------------- */
-function Field({ labelTamil, labelEn, value, onChange, multiline = false, placeholder = "" }) {
+function Field({ labelTamil, labelEn, value, onChange, multiline = false, placeholder = "", type = "text" }) {
   const baseCls =
     "mt-1.5 w-full rounded-xl border border-brass/40 bg-parchment/80 px-4 py-2.5 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-vermillion/40 focus:border-vermillion transition font-tamil-sans text-sm";
   return (
@@ -65,13 +85,42 @@ function Field({ labelTamil, labelEn, value, onChange, multiline = false, placeh
         />
       ) : (
         <input
-          type="text"
+          type={type}
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className={baseCls}
         />
       )}
+    </label>
+  );
+}
+
+function PasswordField({ labelTamil, labelEn, value, onChange }) {
+  const [show, setShow] = useState(false);
+  return (
+    <label className="block">
+      <span className="flex flex-wrap items-baseline gap-2 font-tamil-sans text-sm font-semibold text-ink/80">
+        <span className="font-tamil">{labelTamil}</span>
+        <span className="text-ink/40 font-display italic text-xs">/ {labelEn}</span>
+      </span>
+      <div className="relative mt-1.5">
+        <input
+          type={show ? "text" : "password"}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full rounded-xl border border-brass/40 bg-parchment/80 px-4 py-2.5 pr-11 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-vermillion/40 focus:border-vermillion transition font-tamil-sans text-sm"
+          placeholder="••••••••"
+        />
+        <button
+          type="button"
+          onClick={() => setShow((s) => !s)}
+          aria-label={show ? "Hide password" : "Show password"}
+          className="absolute inset-y-0 right-2 my-auto inline-flex items-center justify-center h-9 w-9 rounded-lg text-ink/60 hover:text-vermillion hover:bg-brass/10 transition"
+        >
+          {show ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      </div>
     </label>
   );
 }
@@ -122,7 +171,10 @@ function AdminPage() {
     setDraft((prev) => {
       const next = structuredClone(prev);
       let node = next;
-      for (let i = 0; i < path.length - 1; i++) node = node[path[i]];
+      for (let i = 0; i < path.length - 1; i++) {
+        if (node[path[i]] == null) node[path[i]] = {};
+        node = node[path[i]];
+      }
       node[path[path.length - 1]] = value;
       return next;
     });
@@ -141,6 +193,12 @@ function AdminPage() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    triggerLogoutToast();
+    navigate({ to: "/" });
+  };
+
   return (
     <div className="min-h-screen relative-z bg-gradient-parchment">
       {/* Decorative ornaments */}
@@ -156,7 +214,11 @@ function AdminPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 h-20 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 overflow-hidden rounded-2xl border border-parchment/30 bg-parchment/10">
-              <img src={logoImg} alt="Temple" className="h-full w-full object-cover" />
+              <img
+                src={draft.images?.logo || logoImg}
+                alt="Temple"
+                className="h-full w-full object-cover"
+              />
             </div>
             <div className="leading-tight">
               <h1 className="font-tamil text-base sm:text-lg font-bold text-parchment">
@@ -176,10 +238,7 @@ function AdminPage() {
               <Eye size={14} /> தளம் காண்க
             </Link>
             <button
-              onClick={() => {
-                logout();
-                navigate({ to: "/admin/login" });
-              }}
+              onClick={handleLogout}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-parchment/15 hover:bg-parchment/25 text-parchment text-xs sm:text-sm font-tamil-sans border border-parchment/30 transition"
             >
               <LogOut size={14} /> வெளியேறு
@@ -264,6 +323,8 @@ function AdminPage() {
         {activeTab === "header" && <HeaderTab draft={draft} update={update} />}
         {activeTab === "home" && <HomeTab draft={draft} update={update} />}
         {activeTab === "pages" && <PagesTab draft={draft} update={update} />}
+        {activeTab === "images" && <ImagesTab draft={draft} update={update} />}
+        {activeTab === "notes" && <NotesTab draft={draft} update={update} />}
         {activeTab === "footer" && <FooterTab draft={draft} update={update} />}
         {activeTab === "account" && (
           <AccountTab credentials={credentials} updateCredentials={updateCredentials} />
@@ -532,6 +593,310 @@ function PagesTab({ draft, update }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  IMAGES TAB                                                                */
+/* -------------------------------------------------------------------------- */
+const PAGE_DEFAULT_HERO = {
+  "temple-history": gopuramHero,
+  "sthala-puranam": manuscript,
+  "temple-structure": carvings,
+  deities: deityGanesha,
+  events: pooja,
+  festivals: festival,
+  calendar: navCalendar,
+  priest: priestImg,
+  donate: donationImg,
+};
+
+const HOME_DEFAULT_CARD = {
+  "temple-history": gopuram,
+  "sthala-puranam": manuscript,
+  "temple-structure": carvings,
+  deities: deityGanesha,
+  events: pooja,
+  festivals: festival,
+  calendar: navCalendar,
+  priest: priestImg,
+  donate: donationImg,
+};
+
+function ImageSlot({ labelTamil, labelEn, current, defaultImg, onChange, onClear }) {
+  const inputRef = useRef(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const handleFile = async (file) => {
+    setError("");
+    if (!file) return;
+    setBusy(true);
+    try {
+      const dataUrl = await fileToCompressedDataUrl(file, { maxDimension: 1600 });
+      onChange(dataUrl);
+    } catch (e) {
+      setError(e.message || "Upload failed");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  const preview = current || defaultImg;
+
+  return (
+    <div className="rounded-xl border border-brass/30 bg-parchment/50 p-3 sm:p-4 flex flex-col sm:flex-row gap-4 items-stretch">
+      <div className="w-full sm:w-40 shrink-0 aspect-[4/3] rounded-lg overflow-hidden border border-brass/30 bg-parchment">
+        {preview ? (
+          <img src={preview} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center text-ink/40 text-xs">
+            (no image)
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0 flex flex-col">
+        <div className="font-tamil text-base font-semibold text-ink leading-tight">{labelTamil}</div>
+        <div className="font-display italic text-xs text-brass-deep">/ {labelEn}</div>
+        <div className="mt-1 text-[0.7rem] font-tamil-sans text-ink/60">
+          {current ? "தனிப்பயன் பதிவேற்றம் · Custom upload" : "இயல்புநிலை படம் · Default image"}
+        </div>
+
+        {error && (
+          <div className="mt-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs text-destructive font-tamil-sans">
+            {error}
+          </div>
+        )}
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleFile(e.target.files?.[0])}
+          />
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={busy}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-sunset text-parchment text-xs font-tamil-sans font-semibold shadow-brass hover:shadow-temple disabled:opacity-60 transition"
+          >
+            <Upload size={13} /> {busy ? "ஏற்றுகிறது…" : "பதிவேற்று · Upload"}
+          </button>
+          {current && (
+            <button
+              type="button"
+              onClick={onClear}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-brass/40 text-ink/80 hover:bg-brass/10 text-xs font-tamil-sans transition"
+            >
+              <RotateCcw size={13} /> இயல்புநிலை · Reset
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ImagesTab({ draft, update }) {
+  const images = draft.images || {};
+  const slugs = Object.keys(PAGE_TITLES);
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-brass/30 bg-card/95 p-4 sm:p-5">
+        <p className="font-tamil-sans text-sm text-ink/70 leading-relaxed">
+          இங்கே நீங்கள் உங்கள் இணையதளத்தின் முக்கிய படங்களை மாற்றலாம். பெரிய படங்கள் தானாக சுருக்கப்படும்
+          (1600px-க்கு). சேமிக்க <strong className="text-vermillion">சேமி</strong> பொத்தானை அழுத்தவும்.
+          <br />
+          <span className="text-ink/50 font-display italic">
+            Upload custom images for the site below. Files are auto-resized for best performance.
+          </span>
+        </p>
+      </div>
+
+      <SectionCard titleTamil="இணைய தள படங்கள்" titleEn="Site-wide Images">
+        <ImageSlot
+          labelTamil="ஆலய லோகோ"
+          labelEn="Temple logo (header)"
+          current={images.logo}
+          defaultImg={logoImg}
+          onChange={(v) => update(["images", "logo"], v)}
+          onClear={() => update(["images", "logo"], null)}
+        />
+        <ImageSlot
+          labelTamil="முகப்பு ஹீரோ தெய்வ படம்"
+          labelEn="Home hero deity image"
+          current={images.homeHeroDeity}
+          defaultImg={muruganDeity}
+          onChange={(v) => update(["images", "homeHeroDeity"], v)}
+          onClear={() => update(["images", "homeHeroDeity"], null)}
+        />
+      </SectionCard>
+
+      <SectionCard titleTamil="முகப்பு பகுதி அட்டைகள்" titleEn="Home page chapter cards">
+        <div className="grid sm:grid-cols-2 gap-3">
+          {slugs.map((slug) => {
+            const [tamil, en] = PAGE_TITLES[slug];
+            return (
+              <ImageSlot
+                key={slug}
+                labelTamil={tamil}
+                labelEn={en}
+                current={images.homeCards?.[slug]}
+                defaultImg={HOME_DEFAULT_CARD[slug]}
+                onChange={(v) => update(["images", "homeCards", slug], v)}
+                onClear={() => update(["images", "homeCards", slug], null)}
+              />
+            );
+          })}
+        </div>
+      </SectionCard>
+
+      <SectionCard titleTamil="உள் பக்க ஹீரோ படங்கள்" titleEn="Inner page hero images">
+        <div className="grid sm:grid-cols-2 gap-3">
+          {slugs.map((slug) => {
+            const [tamil, en] = PAGE_TITLES[slug];
+            return (
+              <ImageSlot
+                key={slug}
+                labelTamil={tamil}
+                labelEn={en}
+                current={images.pageHero?.[slug]}
+                defaultImg={PAGE_DEFAULT_HERO[slug]}
+                onChange={(v) => update(["images", "pageHero", slug], v)}
+                onClear={() => update(["images", "pageHero", slug], null)}
+              />
+            );
+          })}
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  CALENDAR NOTES TAB                                                        */
+/* -------------------------------------------------------------------------- */
+function NotesTab({ draft, update }) {
+  const notes = draft.calendarNotes || {};
+  const [date, setDate] = useState(toLocalDateKey(new Date()));
+  const [text, setText] = useState("");
+
+  const sortedKeys = useMemo(
+    () => Object.keys(notes).sort(),
+    [notes],
+  );
+
+  const onAddOrUpdate = () => {
+    if (!text.trim()) return;
+    const next = { ...notes, [date]: text.trim() };
+    update(["calendarNotes"], next);
+    setText("");
+  };
+
+  const onDelete = (key) => {
+    const next = { ...notes };
+    delete next[key];
+    update(["calendarNotes"], next);
+  };
+
+  return (
+    <div className="space-y-5">
+      <SectionCard titleTamil="புதிய குறிப்பு சேர்" titleEn="Add / update note">
+        <p className="text-xs sm:text-sm font-tamil-sans text-ink/70">
+          ஒரு தேதியைத் தேர்ந்தெடுத்து குறிப்பை எழுதுங்கள். அந்தத் தேதியில் ஏற்கனவே குறிப்பு இருந்தால்,
+          அது புதுப்பிக்கப்படும். குறிப்பு உள்ள தேதிகள் நாட்காட்டியில் சிறப்பு புள்ளியுடன் காட்டப்படும்.
+          <br />
+          <span className="text-ink/50 font-display italic">
+            Pick a date and write a note — it will appear with a marker on the public calendar.
+          </span>
+        </p>
+
+        <div className="grid sm:grid-cols-3 gap-3">
+          <Field
+            labelTamil="தேதி"
+            labelEn="Date"
+            type="date"
+            value={date}
+            onChange={setDate}
+          />
+          <div className="sm:col-span-2">
+            <Field
+              labelTamil="குறிப்பு"
+              labelEn="Note"
+              value={text}
+              onChange={setText}
+              multiline
+              placeholder="உதா: காலை 6:00 மணிக்கு சிறப்பு கங்காபிஷேகம்."
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onAddOrUpdate}
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-sunset text-parchment font-tamil font-semibold text-xs sm:text-sm shadow-brass hover:shadow-temple transition-all"
+        >
+          <Plus size={14} /> குறிப்பைச் சேர் · Save note
+        </button>
+      </SectionCard>
+
+      <SectionCard titleTamil="அனைத்து குறிப்புகள்" titleEn="All notes">
+        {sortedKeys.length === 0 ? (
+          <p className="text-sm font-tamil-sans text-ink/60">
+            இதுவரை குறிப்புகள் எதுவும் சேர்க்கப்படவில்லை.{" "}
+            <span className="font-display italic">No notes added yet.</span>
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {sortedKeys.map((key) => (
+              <div
+                key={key}
+                className="flex items-start gap-3 rounded-xl border border-brass/20 bg-parchment/50 p-3"
+              >
+                <div className="flex flex-col items-center w-16 shrink-0 rounded-lg bg-vermillion/10 border border-vermillion/30 px-2 py-1.5">
+                  <CalendarDays size={14} className="text-vermillion" />
+                  <div className="mt-1 font-display text-xs font-bold text-ink leading-none">
+                    {key}
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 text-brass-deep mb-1">
+                    <StickyNote size={13} />
+                    <span className="font-display italic text-[0.65rem] tracking-widest uppercase">
+                      Note
+                    </span>
+                  </div>
+                  <p className="font-tamil-sans text-sm text-ink/85 break-words whitespace-pre-wrap">
+                    {notes[key]}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button
+                      onClick={() => {
+                        setDate(key);
+                        setText(notes[key]);
+                      }}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-brass/40 text-ink/80 hover:bg-brass/10 text-[0.7rem] font-tamil-sans"
+                    >
+                      திருத்து · Edit
+                    </button>
+                    <button
+                      onClick={() => onDelete(key)}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-destructive/30 text-destructive hover:bg-destructive/10 text-[0.7rem] font-tamil-sans"
+                    >
+                      <Trash2 size={11} /> நீக்கு · Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </SectionCard>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  FOOTER TAB                                                                */
 /* -------------------------------------------------------------------------- */
 function FooterTab({ draft, update }) {
@@ -603,13 +968,13 @@ function AccountTab({ credentials, updateCredentials }) {
           value={userId}
           onChange={setUserId}
         />
-        <Field
+        <PasswordField
           labelTamil="புதிய கடவுச்சொல்"
           labelEn="New password"
           value={password}
           onChange={setPassword}
         />
-        <Field
+        <PasswordField
           labelTamil="கடவுச்சொல்லை உறுதிப்படுத்தவும்"
           labelEn="Confirm password"
           value={confirm}

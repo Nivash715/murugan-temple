@@ -2,36 +2,45 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import logoImg from "@/assets/m12.jpeg";
-import { useContent } from "@/lib/content-store";
+import { useContent, useImage } from "@/lib/content-store";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { content } = useContent();
   const { titleTamil, titleEn, nav } = content.header;
+  const logoSrc = useImage("logo", logoImg);
 
   return (
     <header className="relative-z sticky top-0 z-50 backdrop-blur-md bg-gradient-to-r from-[#A52A2A] to-[#cc7722] border-b border-parchment/20">
       <div className="mx-auto max-w-[1600px] px-5 lg:px-8 h-20 flex items-center justify-between gap-4">
-        {/* Logo / title now navigates to the admin login page */}
-        <Link
-          to="/admin/login"
-          aria-label="Admin login"
-          className="flex items-center gap-3 group shrink-0"
-        >
-          <div className="h-14 w-14 overflow-hidden rounded-3xl border border-parchment/30 bg-parchment/10 shadow-sm">
-            <img
-              src={logoImg}
-              alt="Temple logo"
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="leading-tight">
-            <div className="font-tamil text-lg font-bold text-parchment">{titleTamil}</div>
+        {/* Logo (admin entrance) and title (home) are now SEPARATE links */}
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Logo image → admin login */}
+          <Link
+            to="/admin/login"
+            aria-label="Admin login"
+            title="நிர்வாக நுழைவு / Admin login"
+            className="group block"
+          >
+            <div className="h-14 w-14 overflow-hidden rounded-3xl border border-parchment/30 bg-parchment/10 shadow-sm ring-0 group-hover:ring-2 group-hover:ring-parchment/40 transition">
+              <img
+                src={logoSrc}
+                alt="Temple logo"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </Link>
+
+          {/* Temple title → home */}
+          <Link to="/" className="leading-tight group">
+            <div className="font-tamil text-lg font-bold text-parchment group-hover:text-parchment/90">
+              {titleTamil}
+            </div>
             <div className="font-display italic text-[0.65rem] sm:text-xs text-parchment/75 tracking-widest">
               {titleEn}
             </div>
-          </div>
-        </Link>
+          </Link>
+        </div>
 
         <nav className="hidden lg:flex items-center gap-1 flex-wrap justify-end">
           {nav.map((item) => (

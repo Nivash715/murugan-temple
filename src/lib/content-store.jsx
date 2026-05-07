@@ -111,6 +111,41 @@ export const defaultContent = {
     templeNameEn: "Sri Valli Devasena Subramaniyar Temple",
     copyrightTamil: "© 2026 ஸ்ரீ சுப்ரமணியர் ஆலயம் . All Rights Reserved",
   },
+
+  // ---------------- Images (data URLs uploaded via the admin panel) ----------------
+  // null means "use the bundled default asset" — components fall back automatically.
+  images: {
+    logo: null, // header / login screens
+    homeHeroDeity: null, // big deity photo on the home hero
+    homeCards: {
+      // chapter cards on the home page (keyed by route slug)
+      "temple-history": null,
+      "sthala-puranam": null,
+      "temple-structure": null,
+      deities: null,
+      events: null,
+      festivals: null,
+      calendar: null,
+      priest: null,
+      donate: null,
+    },
+    pageHero: {
+      // hero image on each inner page (keyed by route slug)
+      "temple-history": null,
+      "sthala-puranam": null,
+      "temple-structure": null,
+      deities: null,
+      events: null,
+      festivals: null,
+      calendar: null,
+      priest: null,
+      donate: null,
+    },
+  },
+
+  // ---------------- Calendar notes ----------------
+  // { "YYYY-MM-DD": "free-form Tamil/English note" }
+  calendarNotes: {},
 };
 
 /* -------------------------------------------------------------------------- */
@@ -189,3 +224,43 @@ export function useContent() {
   }
   return ctx;
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Small helpers that components can use directly                            */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Returns the current image override (data URL) for a dotted path inside
+ * `content.images`, or `null` if none is set. Example: `useImageOverride("logo")`,
+ * `useImageOverride("pageHero.events")`.
+ */
+export function useImageOverride(path) {
+  const { content } = useContent();
+  if (!path) return null;
+  const parts = path.split(".");
+  let node = content.images;
+  for (const part of parts) {
+    if (node == null) return null;
+    node = node[part];
+  }
+  return node || null;
+}
+
+/**
+ * Returns the override (data URL) or the supplied default for an image path.
+ */
+export function useImage(path, fallback) {
+  return useImageOverride(path) || fallback;
+}
+
+/**
+ * Format a Date as YYYY-MM-DD using the local timezone (matches what users
+ * see on the calendar grid).
+ */
+export function toLocalDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+

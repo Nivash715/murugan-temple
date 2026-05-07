@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { useContent } from "@/lib/content-store";
+import { useContent, useImage, useImageOverride } from "@/lib/content-store";
 import gopuram from "@/assets/temple-gopuram.jpg";
 import deepam from "@/assets/temple-deepam.jpg";
 import manuscript from "@/assets/temple-manuscript.jpg";
@@ -106,6 +106,8 @@ const sections = [
 function Index() {
   const { content } = useContent();
   const home = content.home;
+  const heroDeitySrc = useImage("homeHeroDeity", muruganDeity);
+  const cardOverrides = content.images?.homeCards || {};
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
@@ -160,7 +162,7 @@ function Index() {
             <div className="absolute -inset-8 bg-gradient-sunset rounded-full blur-3xl opacity-40" />
             <div className="relative aspect-[3/4] rounded-3xl overflow-hidden shadow-temple border-2 border-brass/40">
               <img
-                src={muruganDeity}
+                src={heroDeitySrc}
                 alt="ஸ்ரீ முருகன் சுவாமி"
                 className="h-full w-full object-cover"
               />
@@ -200,7 +202,7 @@ function Index() {
             >
               <div className="aspect-[4/5] overflow-hidden">
                 <img
-                  src={s.image}
+                  src={cardOverrides[s.to.replace(/^\//, "")] || s.image}
                   alt={s.en}
                   className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
                   loading="lazy"

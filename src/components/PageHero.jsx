@@ -1,21 +1,23 @@
-import { useContent } from "@/lib/content-store";
+import { useContent, useImageOverride } from "@/lib/content-store";
 
 /**
  * PageHero
  *
- * If a `slug` prop is supplied (e.g. "events", "deities"), the hero text is
- * pulled from the editable content store with the explicit props acting as
- * fallbacks. Existing call sites that pass eyebrow/titleTamil/titleEn/description
- * directly continue to work unchanged.
+ * If a `slug` prop is supplied (e.g. "events", "deities"), the hero text and
+ * image are pulled from the editable content store with the explicit props
+ * acting as fallbacks. Existing call sites that pass eyebrow/titleTamil/
+ * titleEn/description directly continue to work unchanged.
  */
 export function PageHero({ slug, eyebrow, titleTamil, titleEn, description, image }) {
   const { content } = useContent();
   const editable = slug ? content.pages?.[slug] : null;
+  const imgOverride = useImageOverride(slug ? `pageHero.${slug}` : null);
 
   const _eyebrow = editable?.eyebrow ?? eyebrow;
   const _titleTamil = editable?.titleTamil ?? titleTamil;
   const _titleEn = editable?.titleEn ?? titleEn;
   const _description = editable?.description ?? description;
+  const _image = imgOverride || image;
 
   return (
     <section className="relative-z overflow-hidden">
@@ -40,7 +42,7 @@ export function PageHero({ slug, eyebrow, titleTamil, titleEn, description, imag
         <div className="sm:col-span-1 lg:col-span-5 xl:col-span-6 relative">
           <div className="absolute -inset-3 bg-gradient-sunset rounded-2xl blur-2xl opacity-25" />
           <div className="relative aspect-[3/4] sm:aspect-[4/5] rounded-2xl overflow-hidden shadow-temple border border-brass/30 max-w-[280px] sm:max-w-[320px] mx-auto lg:mx-0">
-            <img src={image} alt={_titleEn} className="h-full w-full object-cover" />
+            <img src={_image} alt={_titleEn} className="h-full w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
           </div>
         </div>
