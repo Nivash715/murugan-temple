@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero } from "@/components/PageHero";
 import priestImg from "@/assets/achakar.jpg";
 import { Phone, User } from "lucide-react";
+import { useContent } from "@/lib/content-store";
 
 export const Route = createFileRoute("/priest")({
   head: () => ({
@@ -20,18 +21,22 @@ export const Route = createFileRoute("/priest")({
   component: PriestPage,
 });
 
-const priest = {
+const defaultPriest = {
   label: "அர்ச்சகர்",
   phone: "9894187394",
 };
 
-const trustees = [
+const defaultTrustees = [
   { name: "திரு கிருஷ்ணமூர்த்தி", phone: "9486525147" },
   { name: "திரு சரவணன்", phone: "8248466414" },
   { name: "திரு வெங்கடேஷ்", phone: "9362661814" },
 ];
 
 function PriestPage() {
+  const { content } = useContent();
+  const priest = content.priest || defaultPriest;
+  const trustees = content.trustees && content.trustees.length > 0 ? content.trustees : defaultTrustees;
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
@@ -87,9 +92,9 @@ function PriestPage() {
         </h2>
 
         <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {trustees.map((t) => (
+          {trustees.map((t, i) => (
             <div
-              key={t.name}
+              key={`${t.name}-${i}`}
               className="bg-card border border-brass/30 rounded-xl p-4 sm:p-5 text-center hover:shadow-brass transition-all"
             >
               <div className="mx-auto h-14 w-14 rounded-full bg-gradient-brass text-parchment flex items-center justify-center mb-3 shadow-brass">

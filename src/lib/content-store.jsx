@@ -105,6 +105,23 @@ export const defaultContent = {
     },
   },
 
+  // ---------------- Priest & Trustees (used by /priest) ----------------
+  priest: {
+    label: "அர்ச்சகர்",
+    phone: "9894187394",
+  },
+
+  trustees: [
+    { name: "திரு கிருஷ்ணமூர்த்தி", phone: "9486525147" },
+    { name: "திரு சரவணன்", phone: "8248466414" },
+    { name: "திரு வெங்கடேஷ்", phone: "9362661814" },
+  ],
+
+  // ---------------- Announcements (used by /festivals) ----------------
+  announcements: [
+    "மே 15 அன்று காலை 6:00 மணிக்கு சிறப்பு கங்காபிஷேகம் நடைபெறும்.",
+  ],
+
   // ---------------- Footer ----------------
   footer: {
     templeNameTamil: "ஸ்ரீ வள்ளி தேவசேனா சமய சுப்ரமணியர் ஆலயம்",

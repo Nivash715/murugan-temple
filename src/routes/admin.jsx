@@ -17,6 +17,8 @@ import {
   CalendarDays,
   Upload,
   StickyNote,
+  Users,
+  Bell,
 } from "lucide-react";
 import logoImg from "@/assets/m12.jpeg";
 import kolam from "@/assets/kolam-ornament.png";
@@ -58,6 +60,7 @@ const TABS = [
   { id: "home", label: "முகப்பு பக்கம்", en: "Home Page", icon: HomeIcon },
   { id: "pages", label: "உள் பக்கங்கள்", en: "Inner Pages", icon: LayoutGrid },
   { id: "images", label: "படங்கள்", en: "Images", icon: ImageIcon },
+  { id: "people", label: "மக்கள் & அறிவிப்புகள்", en: "People & Announcements", icon: Users },
   { id: "notes", label: "நாட்காட்டி குறிப்புகள்", en: "Calendar Notes", icon: CalendarDays },
   { id: "footer", label: "அடிக்குறிப்பு", en: "Footer", icon: Eye },
   { id: "account", label: "கணக்கு", en: "Account", icon: KeyRound },
@@ -324,6 +327,7 @@ function AdminPage() {
         {activeTab === "home" && <HomeTab draft={draft} update={update} />}
         {activeTab === "pages" && <PagesTab draft={draft} update={update} />}
         {activeTab === "images" && <ImagesTab draft={draft} update={update} />}
+        {activeTab === "people" && <PeopleTab draft={draft} update={update} />}
         {activeTab === "notes" && <NotesTab draft={draft} update={update} />}
         {activeTab === "footer" && <FooterTab draft={draft} update={update} />}
         {activeTab === "account" && (
@@ -770,6 +774,136 @@ function ImagesTab({ draft, update }) {
         </div>
       </SectionCard>
     </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  PEOPLE & ANNOUNCEMENTS TAB                                                */
+/* -------------------------------------------------------------------------- */
+function PeopleTab({ draft, update }) {
+  const priest = draft.priest || { label: "", phone: "" };
+  const trustees = draft.trustees || [];
+  const announcements = draft.announcements || [];
+
+  const updateTrustee = (idx, key, val) => {
+    const next = trustees.map((t, i) => (i === idx ? { ...t, [key]: val } : t));
+    update(["trustees"], next);
+  };
+  const removeTrustee = (idx) =>
+    update(["trustees"], trustees.filter((_, i) => i !== idx));
+  const addTrustee = () =>
+    update(["trustees"], [...trustees, { name: "திரு புதியவர்", phone: "" }]);
+
+  const updateAnnouncement = (idx, val) => {
+    const next = announcements.map((a, i) => (i === idx ? val : a));
+    update(["announcements"], next);
+  };
+  const removeAnnouncement = (idx) =>
+    update(["announcements"], announcements.filter((_, i) => i !== idx));
+  const addAnnouncement = () =>
+    update(["announcements"], [...announcements, "புதிய அறிவிப்பு"]);
+
+  return (
+    <>
+      <SectionCard titleTamil="அர்ச்சகர்" titleEn="Priest">
+        <Field
+          labelTamil="அர்ச்சகர் பெயர் / பதவி"
+          labelEn="Priest name / role"
+          value={priest.label}
+          onChange={(v) => update(["priest", "label"], v)}
+        />
+        <Field
+          labelTamil="தொலைபேசி எண்"
+          labelEn="Phone number"
+          value={priest.phone}
+          onChange={(v) => update(["priest", "phone"], v)}
+          placeholder="9894187394"
+        />
+      </SectionCard>
+
+      <SectionCard titleTamil="அறங்காவலர் குழு" titleEn="Management / Trustees">
+        <div className="space-y-3">
+          {trustees.map((t, idx) => (
+            <div
+              key={idx}
+              className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3 items-end rounded-xl border border-brass/20 bg-parchment/40 p-3"
+            >
+              <div className="sm:col-span-6">
+                <Field
+                  labelTamil="பெயர்"
+                  labelEn="Name"
+                  value={t.name}
+                  onChange={(v) => updateTrustee(idx, "name", v)}
+                />
+              </div>
+              <div className="sm:col-span-5">
+                <Field
+                  labelTamil="தொலைபேசி எண்"
+                  labelEn="Phone"
+                  value={t.phone}
+                  onChange={(v) => updateTrustee(idx, "phone", v)}
+                />
+              </div>
+              <div className="sm:col-span-1 flex sm:justify-end">
+                <button
+                  onClick={() => removeTrustee(idx)}
+                  className="inline-flex items-center justify-center h-10 w-10 rounded-xl border border-destructive/30 text-destructive hover:bg-destructive/10 transition"
+                  title="Remove · அகற்று"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={addTrustee}
+          className="mt-1 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brass/40 text-ink/80 hover:bg-brass/10 transition text-xs sm:text-sm font-tamil-sans"
+        >
+          <Plus size={14} /> புதிய அறங்காவலர் · Add trustee
+        </button>
+      </SectionCard>
+
+      <SectionCard titleTamil="விழா அறிவிப்புகள்" titleEn="Festival Announcements">
+        <p className="text-xs sm:text-sm font-tamil-sans text-ink/60 -mt-1">
+          <Bell size={12} className="inline mr-1 text-vermillion" />
+          இந்த அறிவிப்புகள் <strong>விழாக்கள் / Festivals</strong> பக்கத்தில் காட்டப்படும்.
+        </p>
+        <div className="space-y-3">
+          {announcements.map((line, idx) => (
+            <div
+              key={idx}
+              className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3 items-end rounded-xl border border-brass/20 bg-parchment/40 p-3"
+            >
+              <div className="sm:col-span-11">
+                <Field
+                  labelTamil={`அறிவிப்பு ${idx + 1}`}
+                  labelEn={`Announcement ${idx + 1}`}
+                  value={line}
+                  onChange={(v) => updateAnnouncement(idx, v)}
+                  multiline
+                />
+              </div>
+              <div className="sm:col-span-1 flex sm:justify-end">
+                <button
+                  onClick={() => removeAnnouncement(idx)}
+                  className="inline-flex items-center justify-center h-10 w-10 rounded-xl border border-destructive/30 text-destructive hover:bg-destructive/10 transition"
+                  title="Remove · அகற்று"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={addAnnouncement}
+          className="mt-1 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brass/40 text-ink/80 hover:bg-brass/10 transition text-xs sm:text-sm font-tamil-sans"
+        >
+          <Plus size={14} /> புதிய அறிவிப்பு · Add announcement
+        </button>
+      </SectionCard>
+    </>
   );
 }
 

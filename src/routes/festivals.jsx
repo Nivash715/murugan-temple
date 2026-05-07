@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero } from "@/components/PageHero";
 import festivalImg from "@/assets/7.jpeg";
 import { Eye, Bell, Calendar } from "lucide-react";
+import { useContent } from "@/lib/content-store";
 
 export const Route = createFileRoute("/festivals")({
   head: () => ({
@@ -55,11 +56,17 @@ const upcoming = [
   },
   { month: "அக்", day: "02", tamil: "நவராத்திரி", en: "Navarathri", note: "9 இரவு அம்பாள் கொலு" },
 ];
-const announcements = [
+const defaultAnnouncements = [
   "மே 15 அன்று காலை 6:00 மணிக்கு சிறப்பு கங்காபிஷேகம் நடைபெறும்.",
 ];
 
 function FestivalsPage() {
+  const { content } = useContent();
+  const announcements =
+    content.announcements && content.announcements.length > 0
+      ? content.announcements
+      : defaultAnnouncements;
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
