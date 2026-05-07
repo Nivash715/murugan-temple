@@ -37,6 +37,7 @@ function PriestPage() {
       <SiteHeader />
 
       <PageHero
+        slug="priest"
         eyebrow="Priest · அர்ச்சகர்"
         titleTamil="அர்ச்சகர் & நிர்வாகம்"
         titleEn="Priest & Temple Administration"
@@ -106,11 +107,6 @@ function PriestPage() {
           ))}
         </div>
       </section>
-
-      {/* Last Edited */}
-      <div className="text-center py-4 font-display italic text-xs text-ink/40 tracking-widest">
-        Last edited: {new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}
-      </div>
 
       <SiteFooter />
     </div>

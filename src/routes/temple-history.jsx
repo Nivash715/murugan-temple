@@ -70,6 +70,7 @@ function TempleHistory() {
       <SiteHeader />
 
       <PageHero
+        slug="temple-history"
         sectionNumber="2.1"
         eyebrow="Chapter · அத்தியாயம் ஒன்று"
         titleTamil="ஆலய வரலாறு"

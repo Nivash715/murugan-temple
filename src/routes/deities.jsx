@@ -106,6 +106,7 @@ function DeitiesPage() {
       <SiteHeader />
 
       <PageHero
+        slug="deities"
         eyebrow="Main Deities · முக்கிய தெய்வங்கள்"
         titleTamil="முக்கிய தெய்வங்கள்"
         titleEn="Sacred Deities of the Temple"

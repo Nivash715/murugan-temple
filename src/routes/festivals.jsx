@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero } from "@/components/PageHero";
 import festivalImg from "@/assets/7.jpeg";
-import { Eye, Star, Flame } from "lucide-react";
+import { Eye, Bell, Calendar } from "lucide-react";
 
 export const Route = createFileRoute("/festivals")({
   head: () => ({
@@ -55,13 +55,8 @@ const upcoming = [
   },
   { month: "அக்", day: "02", tamil: "நவராத்திரி", en: "Navarathri", note: "9 இரவு அம்பாள் கொலு" },
 ];
-const rituals = [
-  {
-    tamil: "அபிஷேகம்",
-    en: "Abhishekam",
-    desc: "மூலவருக்கு பால், தயிர், தேன், சந்தனம் ஆகியவற்றால் நீராட்டு.",
-  },
-  { tamil: "அர்ச்சனை", en: "Archana", desc: "108 / 1008 நாமங்களால் தெய்வத்தை அழைத்து வழிபடல் @7:00 AM." },
+const announcements = [
+  "மே 15 அன்று காலை 6:00 மணிக்கு சிறப்பு கங்காபிஷேகம் நடைபெறும்.",
 ];
 
 function FestivalsPage() {
@@ -70,6 +65,7 @@ function FestivalsPage() {
       <SiteHeader />
 
       <PageHero
+        slug="festivals"
         eyebrow="Festivals · விழாக்கள்"
         titleTamil="விழாக்கள் & கொண்டாட்டங்கள்"
         titleEn="Festivals & Celebrations"
@@ -118,33 +114,22 @@ function FestivalsPage() {
         </div>
       </section>
 
-      {/* Special Rituals */}
+      {/* Announcements */}
       <section className="relative-z mx-auto max-w-7xl w-full px-5 sm:px-6 lg:px-10 py-14 sm:py-20">
         <div className="flex items-center gap-3 justify-center mb-6">
-          <Flame className="text-vermillion animate-flicker" />
+          <Bell className="text-vermillion animate-flicker" />
           <span className="font-display italic text-sm tracking-[0.3em] text-brass-deep">
-            SPECIAL RITUALS · சிறப்பு சடங்குகள்
+            ANNOUNCEMENTS · அறிவிப்புகள்
           </span>
         </div>
         <h2 className="text-center font-tamil text-3xl sm:text-4xl md:text-5xl font-bold text-ink mb-10">
-          சிறப்பு சடங்குகள்
+          விழா அறிவிப்புகள்
         </h2>
-        <div className="grid sm:grid-cols-2 gap-6">
-          {rituals.map((r) => (
-            <div
-              key={r.en}
-              className="relative p-6 sm:p-8 rounded-2xl border border-brass/30 bg-gradient-to-br from-card to-parchment"
-            >
-              <Star className="absolute top-5 right-5 text-brass" size={20} />
-              <div className="font-display italic text-brass-deep text-xs tracking-widest uppercase">
-                {r.en}
-              </div>
-              <div className="font-tamil text-2xl sm:text-3xl text-ink font-bold mt-1">
-                {r.tamil}
-              </div>
-              <p className="mt-3 font-tamil-sans text-ink/75 leading-relaxed">{r.desc}</p>
-            </div>
-          ))}
+        <div className="flex justify-center">
+          <div className="relative p-6 rounded-2xl bg-gradient-sanctum text-parchment overflow-hidden w-full max-w-md">
+            <Calendar className="absolute -right-4 -bottom-4 opacity-20" size={120} />
+            <div className="relative font-tamil text-base sm:text-lg leading-relaxed">{announcements[0]}</div>
+          </div>
         </div>
       </section>
 

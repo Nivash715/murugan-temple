@@ -70,6 +70,7 @@ function DonatePage() {
       <SiteHeader />
 
       <PageHero
+        slug="donate"
         eyebrow="Donate · தானம்"
         titleTamil="ஆன்லைன் தான வசதி"
         titleEn="Online Donation · Secure UPI"

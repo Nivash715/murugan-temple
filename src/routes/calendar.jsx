@@ -291,6 +291,7 @@ function CalendarPage() {
       <SiteHeader />
 
       <PageHero
+        slug="calendar"
         eyebrow="தமிழ் நாட்காட்டி · Panchangam"
         titleTamil="தமிழ் நாட்காட்டி"
         titleEn="Tamil Calendar & Panchangam"

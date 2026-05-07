@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { useContent } from "@/lib/content-store";
 import gopuram from "@/assets/temple-gopuram.jpg";
 import deepam from "@/assets/temple-deepam.jpg";
 import manuscript from "@/assets/temple-manuscript.jpg";
@@ -103,6 +104,8 @@ const sections = [
 ];
 
 function Index() {
+  const { content } = useContent();
+  const home = content.home;
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
@@ -123,24 +126,22 @@ function Index() {
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10 pt-12 sm:pt-16 lg:pt-24 pb-16 sm:pb-24 lg:pb-32 grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           <div className="lg:col-span-7">
               <h1 className="mt-4 sm:mt-5 font-tamil text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-ink leading-[1.1]">
-              வேலனின்
+              {home.heroTamilLine1}
               <br />
-              <span className="text-vermillion">புனிதத் தலம்</span>
+              <span className="text-vermillion">{home.heroTamilLine2}</span>
             </h1>
             <p className="mt-2 font-display italic text-base sm:text-lg lg:text-xl text-brass-deep">
-              A living chronicle of devotion to Murugan
+              {home.heroEnTagline}
             </p>
             <p className="mt-6 sm:mt-8 max-w-xl font-tamil-sans text-base sm:text-lg text-ink/75 leading-relaxed">
-              வேல், மயில், சேவல் கொடியுடன் காட்சி தரும் ஆறுமுகனின் அருளை நாடி, நூற்றாண்டுகளாக
-              பக்தர்களின் பிரார்த்தனைகளை ஏற்று வரும் இந்த புனித முருகன் தலத்தின் வரலாற்றை,
-              புராணத்தை, விழாக்களை அறியுங்கள்.
+              {home.heroDescription}
             </p>
             <div className="mt-8 sm:mt-10 flex flex-wrap gap-3 sm:gap-4">
               <Link
                 to="/temple-history"
                 className="group inline-flex items-center gap-2 px-5 sm:px-7 py-3 sm:py-4 rounded-full bg-gradient-sunset text-parchment font-tamil font-semibold text-sm sm:text-base shadow-brass hover:shadow-temple transition-all"
               >
-                வரலாற்றை அறியுங்கள்
+                {home.primaryCta}
                 <ArrowUpRight
                   className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
                   size={18}
@@ -150,7 +151,7 @@ function Index() {
                 to="/calendar"
                 className="inline-flex items-center gap-2 px-5 sm:px-7 py-3 sm:py-4 rounded-full border-2 border-brass-deep text-ink font-tamil font-semibold text-sm sm:text-base hover:bg-brass/10 transition-all"
               >
-                பஞ்சாங்கம் காண்க
+                {home.secondaryCta}
               </Link>
             </div>
           </div>
@@ -165,10 +166,10 @@ function Index() {
               />
               <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 bg-gradient-to-t from-ink to-transparent">
                 <div className="font-display italic text-brass text-xs sm:text-sm tracking-widest">
-                  SHANMUKHA · ஆறுமுகன்
+                  {home.deityCaptionEn}
                 </div>
                 <div className="font-tamil text-parchment text-xl sm:text-2xl font-bold mt-1">
-                  ஸ்ரீ முருகப் பெருமான்
+                  {home.deityCaptionTamil}
                 </div>
               </div>
             </div>
@@ -180,14 +181,14 @@ function Index() {
       <section className="relative-z mx-auto max-w-7xl px-5 sm:px-6 lg:px-10 py-14 sm:py-20">
         <div className="ornament-divider mb-6">
           <span className="font-display italic text-xs sm:text-sm tracking-[0.3em]">
-            CHAPTERS · அத்தியாயங்கள்
+            {home.chaptersEyebrow}
           </span>
         </div>
         <h2 className="text-center font-tamil text-3xl sm:text-4xl md:text-5xl font-bold text-ink max-w-3xl mx-auto leading-tight">
-          ஏழு புனித பகுதிகள்
+          {home.chaptersTitle}
         </h2>
         <p className="text-center mt-3 sm:mt-4 font-display italic text-lg sm:text-xl text-brass-deep">
-          Seven sacred chapters
+          {home.chaptersSubtitle}
         </p>
 
         <div className="mt-10 sm:mt-16 grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">

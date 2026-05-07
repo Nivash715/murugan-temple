@@ -18,7 +18,9 @@ import { Route as EventsRouteImport } from './routes/events'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as DeitiesRouteImport } from './routes/deities'
 import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminLoginRouteImport } from './routes/admin_.login'
 
 const TempleStructureRoute = TempleStructureRouteImport.update({
   id: '/temple-structure',
@@ -65,14 +67,25 @@ const CalendarRoute = CalendarRouteImport.update({
   path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin_/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/calendar': typeof CalendarRoute
   '/deities': typeof DeitiesRoute
   '/donate': typeof DonateRoute
@@ -82,9 +95,11 @@ export interface FileRoutesByFullPath {
   '/sthala-puranam': typeof SthalaPuranamRoute
   '/temple-history': typeof TempleHistoryRoute
   '/temple-structure': typeof TempleStructureRoute
+  '/admin/login': typeof AdminLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/calendar': typeof CalendarRoute
   '/deities': typeof DeitiesRoute
   '/donate': typeof DonateRoute
@@ -94,10 +109,12 @@ export interface FileRoutesByTo {
   '/sthala-puranam': typeof SthalaPuranamRoute
   '/temple-history': typeof TempleHistoryRoute
   '/temple-structure': typeof TempleStructureRoute
+  '/admin/login': typeof AdminLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/calendar': typeof CalendarRoute
   '/deities': typeof DeitiesRoute
   '/donate': typeof DonateRoute
@@ -107,11 +124,13 @@ export interface FileRoutesById {
   '/sthala-puranam': typeof SthalaPuranamRoute
   '/temple-history': typeof TempleHistoryRoute
   '/temple-structure': typeof TempleStructureRoute
+  '/admin_/login': typeof AdminLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/calendar'
     | '/deities'
     | '/donate'
@@ -121,9 +140,11 @@ export interface FileRouteTypes {
     | '/sthala-puranam'
     | '/temple-history'
     | '/temple-structure'
+    | '/admin/login'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/calendar'
     | '/deities'
     | '/donate'
@@ -133,9 +154,11 @@ export interface FileRouteTypes {
     | '/sthala-puranam'
     | '/temple-history'
     | '/temple-structure'
+    | '/admin/login'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/calendar'
     | '/deities'
     | '/donate'
@@ -145,10 +168,12 @@ export interface FileRouteTypes {
     | '/sthala-puranam'
     | '/temple-history'
     | '/temple-structure'
+    | '/admin_/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   CalendarRoute: typeof CalendarRoute
   DeitiesRoute: typeof DeitiesRoute
   DonateRoute: typeof DonateRoute
@@ -158,6 +183,7 @@ export interface RootRouteChildren {
   SthalaPuranamRoute: typeof SthalaPuranamRoute
   TempleHistoryRoute: typeof TempleHistoryRoute
   TempleStructureRoute: typeof TempleStructureRoute
+  AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -225,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -232,11 +265,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin_/login': {
+      id: '/admin_/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   CalendarRoute: CalendarRoute,
   DeitiesRoute: DeitiesRoute,
   DonateRoute: DonateRoute,
@@ -246,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   SthalaPuranamRoute: SthalaPuranamRoute,
   TempleHistoryRoute: TempleHistoryRoute,
   TempleStructureRoute: TempleStructureRoute,
+  AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

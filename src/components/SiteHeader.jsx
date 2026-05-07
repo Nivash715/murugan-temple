@@ -2,27 +2,22 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import logoImg from "@/assets/m12.jpeg";
-
-const navItems = [
-  { to: "/", label: "முகப்பு", sub: "Home" },
-  { to: "/temple-history", label: "வரலாறு", sub: "History" },
-  { to: "/sthala-puranam", label: "புராணம்", sub: "Puranam" },
-  { to: "/temple-structure", label: "அமைப்பு", sub: "Structure" },
-  { to: "/deities", label: "தெய்வங்கள்", sub: "Deities" },
-  { to: "/events", label: "நிகழ்ச்சிகள்", sub: "Events" },
-  { to: "/festivals", label: "விழாக்கள்", sub: "Festivals" },
-  { to: "/calendar", label: "நாட்காட்டி", sub: "Calendar" },
-  { to: "/priest", label: "அர்ச்சகர்", sub: "Priest" },
-  { to: "/donate", label: "தானம்", sub: "Donate" },
-];
+import { useContent } from "@/lib/content-store";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { content } = useContent();
+  const { titleTamil, titleEn, nav } = content.header;
 
   return (
     <header className="relative-z sticky top-0 z-50 backdrop-blur-md bg-gradient-to-r from-[#A52A2A] to-[#cc7722] border-b border-parchment/20">
       <div className="mx-auto max-w-[1600px] px-5 lg:px-8 h-20 flex items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-3 group shrink-0">
+        {/* Logo / title now navigates to the admin login page */}
+        <Link
+          to="/admin/login"
+          aria-label="Admin login"
+          className="flex items-center gap-3 group shrink-0"
+        >
           <div className="h-14 w-14 overflow-hidden rounded-3xl border border-parchment/30 bg-parchment/10 shadow-sm">
             <img
               src={logoImg}
@@ -31,15 +26,15 @@ export function SiteHeader() {
             />
           </div>
           <div className="leading-tight">
-            <div className="font-tamil text-lg font-bold text-parchment">ஸ்ரீ சுப்பிரமணியர் ஆலயம்</div>
+            <div className="font-tamil text-lg font-bold text-parchment">{titleTamil}</div>
             <div className="font-display italic text-[0.65rem] sm:text-xs text-parchment/75 tracking-widest">
-              SRI SUBRAMANIYAR TEMPLE
+              {titleEn}
             </div>
           </div>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1 flex-wrap justify-end">
-          {navItems.map((item) => (
+          {nav.map((item) => (
             <Link
               key={item.to}
               to={item.to}
@@ -69,7 +64,7 @@ export function SiteHeader() {
       {open && (
         <div className="lg:hidden border-t border-parchment/20 bg-gradient-to-r from-[#b8491b] to-[#8b3a15] backdrop-blur">
           <nav className="px-4 py-4 grid grid-cols-3 sm:grid-cols-4 gap-2">
-            {navItems.map((item) => (
+            {nav.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}

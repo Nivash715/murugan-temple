@@ -48,6 +48,7 @@ function TempleStructure() {
       <SiteHeader />
 
       <PageHero
+        slug="temple-structure"
         sectionNumber="2.3"
         eyebrow="Chapter · அத்தியாயம் மூன்று"
         titleTamil="ஆலய அமைப்பு"

@@ -1,4 +1,5 @@
 import kolam from "@/assets/kolam-ornament.png";
+import { useContent } from "@/lib/content-store";
 
 const socialLinks = [
   {
@@ -31,6 +32,8 @@ const socialLinks = [
 ];
 
 export function SiteFooter() {
+  const { content } = useContent();
+  const footer = content.footer;
   return (
     <footer className="relative bg-gradient-sanctum text-parchment overflow-hidden">
       {/* Decorative kolam right */}
@@ -59,10 +62,10 @@ export function SiteFooter() {
           {/* Temple name */}
           <div className="flex flex-col items-center sm:items-start gap-0.5 text-center sm:text-left">
             <span className="font-display italic text-brass/70 tracking-[0.2em] text-[0.58rem] uppercase">
-              Sri Valli Devasena Subramaniyar Temple
+              {footer.templeNameEn}
             </span>
             <h2 className="font-tamil text-parchment font-bold text-base sm:text-lg leading-snug">
-              ஸ்ரீ வள்ளி தேவசேனா சமய சுப்ரமணியர் ஆலயம்
+              {footer.templeNameTamil}
             </h2>
           </div>
 
@@ -91,7 +94,7 @@ export function SiteFooter() {
         {/* Bottom section: Links and Developer credit */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-[0.7rem] text-parchment/60">
-            <span>© 2026 ஸ்ரீ சுப்ரமணியர் ஆலயம் . All Rights Reserved</span>
+            <span>{footer.copyrightTamil}</span>
             <span className="text-brass/40"></span>
             <a href="#" className="text-brass/70 hover:text-brass transition-colors"></a>
             <span className="text-brass/40"></span>

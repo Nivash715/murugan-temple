@@ -74,6 +74,7 @@ function SthalaPuranam() {
       <SiteHeader />
 
       <PageHero
+        slug="sthala-puranam"
         sectionNumber="2.2"
         eyebrow="Chapter · அத்தியாயம் இரண்டு"
         titleTamil="ஸ்தல புராணம்"
@@ -296,14 +297,110 @@ function SthalaPuranam() {
         </div>
       </section>
 
-      {/* CLOSING QUOTE */}
-      <section className="relative-z mx-auto max-w-4xl px-5 sm:px-6 lg:px-10 py-10 sm:py-14 text-center">
-        <div className="font-display italic text-brass text-5xl sm:text-6xl leading-none">"</div>
-        <blockquote className="font-tamil text-xl sm:text-2xl md:text-3xl lg:text-4xl text-ink leading-relaxed">
-          இறையருள் இல்லாத இடம் இல்லை, ஆனால் சில தலங்களில் அவ்வருள் கங்கையாய் பெருகி வழிகிறது.
-        </blockquote>
-        <div className="mt-4 font-display italic text-sm sm:text-base text-brass-deep">
-          — பண்டைய சுவடி
+      {/* KANTHA SASHTI KAVASAM */}
+      <section className="relative-z mx-auto max-w-4xl w-full px-5 sm:px-6 lg:px-10 py-10 sm:py-14">
+        <div className="ornament-divider mb-4">
+          <span className="font-display italic tracking-[0.3em] text-xs sm:text-sm">
+            KAVASAM · கவசம்
+          </span>
+        </div>
+        <h2 className="text-center font-tamil text-3xl sm:text-4xl md:text-5xl font-bold text-ink mb-8">
+          கந்த சஷ்டி கவசம்
+        </h2>
+
+        {/* Spotify-style lyrics box */}
+        <div className="relative rounded-2xl overflow-hidden border border-brass/30 shadow-temple">
+          {/* Header bar */}
+          <div className="bg-ink flex items-center gap-3 px-5 py-3 border-b border-brass/20">
+            <div className="flex gap-1.5">
+              <span className="h-3 w-3 rounded-full bg-vermillion/70" />
+              <span className="h-3 w-3 rounded-full bg-brass/70" />
+              <span className="h-3 w-3 rounded-full bg-parchment/30" />
+            </div>
+            <span className="flex-1 text-center font-display italic text-brass text-xs tracking-widest">
+              கந்த சஷ்டி கவசம் — Kantha Sashti Kavasam
+            </span>
+          </div>
+
+          {/* Scrollable lyrics */}
+          <div
+            className="bg-ink text-parchment px-6 sm:px-10 py-8 overflow-y-auto"
+            style={{ height: "420px", scrollbarWidth: "thin", scrollbarColor: "#cc7722 #1a1209" }}
+          >
+            <div className="space-y-6 font-tamil text-base sm:text-lg leading-[2.1]">
+
+              <div>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">காப்பு</p>
+                <p className="text-parchment/90">துதிப்போர்க்கு வல்வினை போம் துன்பம் போம் நெஞ்சில்</p>
+                <p className="text-parchment/90">பதிப்போர்க்கு செல்வம் பலிக்கும் விதிப்போர்க்கு</p>
+                <p className="text-parchment/90">குன்றாத ஆனந்தம் கூடும் கந்தனருள்</p>
+                <p className="text-parchment/90">என்றும் சிவமயமாம் ஏத்து.</p>
+              </div>
+
+              <div>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 1</p>
+                <p className="text-parchment/90">வேலும் மயிலும் விளங்கும் செல்வனே</p>
+                <p className="text-parchment/90">வாலிபனே மலையாளா வடிவேலா</p>
+                <p className="text-parchment/90">தேவர்கள் போற்றும் சேவல் கொடியோனே</p>
+                <p className="text-parchment/90">நாவலர் ஏத்தும் நாயகா முருகனே.</p>
+              </div>
+
+              <div>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 2</p>
+                <p className="text-parchment/90">சூரனை வென்ற சொல்ல அரிய வேலோய்</p>
+                <p className="text-parchment/90">ஆறுமுக நாதனே அருள்புரிவாயே</p>
+                <p className="text-parchment/90">கார்த்திகை நாளில் கவசம் அணிந்தவர்</p>
+                <p className="text-parchment/90">வாழ்த்திடும் வேலவா வந்தருள் புரிவாய்.</p>
+              </div>
+
+              <div>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 3</p>
+                <p className="text-parchment/90">காவல் புரிவாய் கந்தா சரணம்</p>
+                <p className="text-parchment/90">தேவர் குருவே திகழும் சரணம்</p>
+                <p className="text-parchment/90">பாவம் அகற்றும் பழனி சரணம்</p>
+                <p className="text-parchment/90">நாவில் வாழும் நாயகா சரணம்.</p>
+              </div>
+
+              <div>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 4</p>
+                <p className="text-parchment/90">சிரம் காக்க செந்தில் வேலவனே</p>
+                <p className="text-parchment/90">நெற்றி காக்க நிறைவேல் முருகனே</p>
+                <p className="text-parchment/90">கண்ணை காக்க கந்தா வேலவனே</p>
+                <p className="text-parchment/90">செவியை காக்க சேவல் கொடியோனே.</p>
+              </div>
+
+              <div>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 5</p>
+                <p className="text-parchment/90">மூக்கை காக்க முருக வேலவனே</p>
+                <p className="text-parchment/90">வாயை காக்க வடிவேல் முருகனே</p>
+                <p className="text-parchment/90">கழுத்தை காக்க கந்த வேலோனே</p>
+                <p className="text-parchment/90">தோளை காக்க தொண்டர் ஏத்தும் வேலா.</p>
+              </div>
+
+              <div>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 6</p>
+                <p className="text-parchment/90">நெஞ்சை காக்க நிறைவேல் முருகனே</p>
+                <p className="text-parchment/90">வயிற்றை காக்க வல்ல வேலவனே</p>
+                <p className="text-parchment/90">முதுகை காக்க மும்மூர்த்தி வேலா</p>
+                <p className="text-parchment/90">கால்களை காக்க கந்தா சரணமே.</p>
+              </div>
+
+              <div>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">பலன்</p>
+                <p className="text-parchment/90">கந்த சஷ்டி கவசமிதை கற்பவர் வாழ்வில்</p>
+                <p className="text-parchment/90">அந்த நோயும் வினையும் அவைப் போகும்</p>
+                <p className="text-parchment/90">கந்தனை எண்ணிக் கவலை தவிர்ப்போர்க்கு</p>
+                <p className="text-parchment/90">வந்திடும் செல்வம் மனதில் மகிழ்வே.</p>
+              </div>
+
+              <div className="pt-2 border-t border-brass/20 text-center">
+                <p className="font-display italic text-brass text-sm tracking-wider">
+                  ஓம் சரவண பவ 🙏 முருகா சரணம்
+                </p>
+              </div>
+
+            </div>
+          </div>
         </div>
       </section>
 
