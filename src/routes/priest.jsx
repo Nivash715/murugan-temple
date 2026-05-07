@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero } from "@/components/PageHero";
-import priestImg from "@/assets/achakar.jpg";
+import priestImg from "@/assets/achakar1.png";
 import { Phone, User } from "lucide-react";
 import { useContent } from "@/lib/content-store";
 

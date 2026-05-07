@@ -8,7 +8,7 @@ import manuscript from "@/assets/temple-manuscript.jpg";
 import carvings from "@/assets/m15.jpeg";
 import pooja from "@/assets/m16.jpeg";
 import festival from "@/assets/m14.jpeg";
-import priest from "@/assets/achakar.jpg";
+import priest from "@/assets/achakar1.png";
 import donation from "@/assets/Donation.jpg";
 import kolam from "@/assets/kolam-ornament.png";
 import navCalendar from "@/assets/Murugan-3.jpeg";
