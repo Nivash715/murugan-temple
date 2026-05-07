@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { useContent, useImage, useImageOverride } from "@/lib/content-store";
-import gopuram from "@/assets/temple-gopuram.jpg";
+import gourami from "@/assets/temple-gopuram.jpg";
 import deepam from "@/assets/temple-deepam.jpg";
 import manuscript from "@/assets/temple-manuscript.jpg";
 import carvings from "@/assets/m15.jpeg";
