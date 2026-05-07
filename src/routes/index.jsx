@@ -14,7 +14,7 @@ import kolam from "@/assets/kolam-ornament.png";
 import navCalendar from "@/assets/Murugan-3.jpeg";
 import muruganDeity from "@/assets/m12.jpeg";
 import muruganVel from "@/assets/murugan-vel.png";
-import deityGanesha from "@/assets/vina.webp";
+import deityGanesha from "@/assets/5.jpeg";
 import { ArrowUpRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({

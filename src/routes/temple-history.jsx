@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero } from "@/components/PageHero";
-import gopuram from "@/assets/temple-gopuram.jpg";
-import deityPhoto from "@/assets/Murugan-2.jpeg";
+import gopuram from "@/assets/18.jpeg";
+import deityPhoto from "@/assets/2.jpeg";
 import { Calendar, Star, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/temple-history")({

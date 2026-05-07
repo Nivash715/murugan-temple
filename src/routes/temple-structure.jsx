@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero } from "@/components/PageHero";
-import carvings from "@/assets/18.jpeg";
+import carvings from "@/assets/19.jpeg";
 import aerial from "@/assets/1.jpeg";
 import gopuram from "@/assets/12.jpeg";
 import { Ruler, Layers, Building2 } from "lucide-react";
