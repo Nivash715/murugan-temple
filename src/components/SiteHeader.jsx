@@ -12,7 +12,7 @@ export function SiteHeader() {
 
   return (
     <header className="relative-z sticky top-0 z-50 backdrop-blur-md bg-gradient-to-r from-[#A52A2A] to-[#cc7722] border-b border-parchment/20">
-      <div className="mx-auto max-w-[1600px] px-5 lg:px-8 h-20 flex items-center justify-between gap-4">
+      <div className="mx-auto max-w-[1600px] px-5 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
         {/* Logo (admin entrance) and title (home) are now SEPARATE links */}
         <div className="flex items-center gap-3 shrink-0">
           {/* Logo image → admin login */}
@@ -22,7 +22,7 @@ export function SiteHeader() {
             title="நிர்வாக நுழைவு / Admin login"
             className="group block"
           >
-            <div className="h-14 w-14 overflow-hidden rounded-3xl border border-parchment/30 bg-parchment/10 shadow-sm ring-0 group-hover:ring-2 group-hover:ring-parchment/40 transition">
+            <div className="h-12 w-12 sm:h-14 sm:w-14 overflow-hidden rounded-3xl border border-parchment/30 bg-parchment/10 shadow-sm ring-0 group-hover:ring-2 group-hover:ring-parchment/40 transition">
               <img
                 src={logoSrc}
                 alt="Temple logo"
@@ -33,7 +33,7 @@ export function SiteHeader() {
 
           {/* Temple title → home */}
           <Link to="/" className="leading-tight group">
-            <div className="font-tamil text-lg font-bold text-parchment group-hover:text-parchment/90">
+            <div className="font-tamil text-base sm:text-lg font-bold text-parchment group-hover:text-parchment/90">
               {titleTamil}
             </div>
             <div className="font-display italic text-[0.65rem] sm:text-xs text-parchment/75 tracking-widest">
