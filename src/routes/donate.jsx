@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero } from "@/components/PageHero";
 import donationImg from "@/assets/Donation.jpg";
+import upiQr from "@/assets/Upi.jpeg";
 import {
   generateReceiptPdf,
   downloadReceiptBlob,
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/donate")({
   component: DonatePage,
 });
 
-const UPI_ID = "srialayam@upi";
+const UPI_ID = "gokulsaravanan633@okicici";
 
 function makeReceiptId() {
   const now = new Date();
@@ -79,6 +80,7 @@ function DonatePage() {
   const [amount, setAmount] = useState(501);
   const [screenshot, setScreenshot] = useState(null);
   const [status, setStatus] = useState({ kind: "idle" });
+  const [copiedUpiCard, setCopiedUpiCard] = useState(false);
 
   const log = useDonationLog();
 
@@ -92,6 +94,12 @@ function DonatePage() {
     navigator.clipboard.writeText(UPI_ID);
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
+  };
+
+  const copyUpiFromCard = () => {
+    navigator.clipboard.writeText(UPI_ID);
+    setCopiedUpiCard(true);
+    setTimeout(() => setCopiedUpiCard(false), 1800);
   };
 
   const resetForm = () => {
@@ -110,10 +118,10 @@ function DonatePage() {
       const trimmedPhone = phone.trim();
       const numericAmount = Number(amount);
 
-      if (!trimmedName || !trimmedEmail || !trimmedPhone || !numericAmount) {
+      if (!trimmedName || !trimmedEmail || !trimmedPhone || !numericAmount || !screenshot) {
         setStatus({
           kind: "error",
-          message: "தயவு செய்து அனைத்து புலங்களையும் நிரப்பவும். Please fill all fields.",
+          message: "தயவு செய்து அனைத்து புலங்களையும் நிரப்பவும். Please fill all fields including screenshot.",
         });
         return;
       }
@@ -283,26 +291,28 @@ function DonatePage() {
                     QR ஸ்கேன் செய்யுங்கள்
                   </div>
                 </div>
-                <div className="mt-6 mx-auto aspect-square max-w-xs rounded-2xl bg-ink p-4 grid grid-cols-12 grid-rows-12 gap-[3px]">
-                  {Array.from({ length: 144 }).map((_, i) => {
-                    const corner =
-                      (i < 36 && i % 12 < 3) ||
-                      (i < 36 && i % 12 > 8) ||
-                      (i > 107 && i % 12 < 3);
-                    const filled = corner || (i * 7) % 5 < 2;
-                    return (
-                      <div
-                        key={i}
-                        className={`rounded-[2px] ${filled ? "bg-parchment" : "bg-transparent"}`}
-                      />
-                    );
-                  })}
+                <div className="mt-6 mx-auto max-w-xs">
+                  <a
+                    href={`upi://pay?pa=${UPI_ID}&pn=Sri%20Murugan%20Temple&tn=Donation`}
+                    className="inline-block w-full rounded-2xl overflow-hidden hover:shadow-lg transition-all"
+                  >
+                    <img
+                      src={upiQr}
+                      alt="UPI QR Code"
+                      className="w-full h-auto"
+                    />
+                  </a>
                 </div>
                 <div className="mt-5 text-center">
                   <div className="font-tamil-sans text-sm text-ink/70">UPI ID</div>
-                  <div className="font-tamil-sans text-lg font-semibold text-ink">
-                    {UPI_ID}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={copyUpiFromCard}
+                    className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-brass/40 bg-brass/10 font-tamil-sans text-lg font-semibold text-ink hover:border-brass hover:bg-brass/20 transition-all"
+                  >
+                    {copiedUpiCard ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
+                    {copiedUpiCard ? "நகலெடுக்கப்பட்டது" : UPI_ID}
+                  </button>
                 </div>
                 <div className="mt-4 grid grid-cols-4 gap-2 text-center">
                   {["GPay", "PhonePe", "Paytm", "BHIM"].map((a) => (
@@ -412,7 +422,7 @@ function DonatePage() {
 
               <label className="block">
                 <span className="font-display italic text-brass text-xs tracking-widest">
-                  SCREENSHOT · படிமம் பதிவேற்றம் (optional)
+                  SCREENSHOT · படிமம் பதிவேற்றம்
                 </span>
                 <div className="mt-2 relative">
                   <input
@@ -423,6 +433,7 @@ function DonatePage() {
                     }
                     className="sr-only"
                     id="screenshot-upload"
+                    required
                   />
                   <label
                     htmlFor="screenshot-upload"
@@ -432,7 +443,7 @@ function DonatePage() {
                     <span className="font-tamil-sans text-ink">
                       {screenshot
                         ? screenshot.name
-                        : "படிமத்தைத் தேர்ந்தெடுக்கவும் (Optional)"}
+                        : "படிமத்தைத் தேர்ந்தெடுக்கவும்"}
                     </span>
                   </label>
                 </div>
