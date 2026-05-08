@@ -80,7 +80,6 @@ function DonatePage() {
   const [amount, setAmount] = useState(501);
   const [screenshot, setScreenshot] = useState(null);
   const [status, setStatus] = useState({ kind: "idle" });
-  const [copiedUpiCard, setCopiedUpiCard] = useState(false);
 
   const log = useDonationLog();
 
@@ -90,16 +89,42 @@ function DonatePage() {
     preloadJsPdf();
   }, []);
 
-  const copyUpi = () => {
-    navigator.clipboard.writeText(UPI_ID);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
+  const copyUpi = async () => {
+    try {
+      await navigator.clipboard.writeText(UPI_ID);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = UPI_ID;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
   };
 
-  const copyUpiFromCard = () => {
-    navigator.clipboard.writeText(UPI_ID);
-    setCopiedUpiCard(true);
-    setTimeout(() => setCopiedUpiCard(false), 1800);
+  const copyUpiFromCard = async () => {
+    try {
+      await navigator.clipboard.writeText(UPI_ID);
+      setCopiedUpiCard(true);
+      setTimeout(() => setCopiedUpiCard(false), 2500);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = UPI_ID;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopiedUpiCard(true);
+      setTimeout(() => setCopiedUpiCard(false), 2500);
+    }
   };
 
   const resetForm = () => {
@@ -305,14 +330,9 @@ function DonatePage() {
                 </div>
                 <div className="mt-5 text-center">
                   <div className="font-tamil-sans text-sm text-ink/70">UPI ID</div>
-                  <button
-                    type="button"
-                    onClick={copyUpiFromCard}
-                    className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-brass/40 bg-brass/10 font-tamil-sans text-lg font-semibold text-ink hover:border-brass hover:bg-brass/20 transition-all"
-                  >
-                    {copiedUpiCard ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
-                    {copiedUpiCard ? "நகலெடுக்கப்பட்டது" : UPI_ID}
-                  </button>
+                  <div className="font-tamil-sans text-lg font-semibold text-ink mt-2">
+                    {UPI_ID}
+                  </div>
                 </div>
                 <div className="mt-4 grid grid-cols-4 gap-2 text-center">
                   {["GPay", "PhonePe", "Paytm", "BHIM"].map((a) => (
