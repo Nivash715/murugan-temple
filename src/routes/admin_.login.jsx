@@ -12,7 +12,8 @@ export const Route = createFileRoute("/admin_/login")({
       { title: "நிர்வாக நுழைவு — Admin Login" },
       {
         name: "description",
-        content: "ஆலய இணைய நிர்வாக நுழைவு பக்கம். Admin login for the temple website content panel.",
+        content:
+          "ஆலய இணைய நிர்வாக நுழைவு பக்கம். Admin login for the temple website content panel.",
       },
     ],
   }),

@@ -134,12 +134,7 @@ function Calendar({
   );
 }
 
-function CalendarDayButton({
-  className,
-  day,
-  modifiers,
-  ...props
-}) {
+function CalendarDayButton({ className, day, modifiers, ...props }) {
   const defaultClassNames = getDefaultClassNames();
 
   const ref = React.useRef(null);

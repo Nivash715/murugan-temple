@@ -32,10 +32,7 @@ export async function fileToCompressedDataUrl(
   if (fitsAsIs) return originalDataUrl;
 
   // Otherwise, draw onto a canvas and re-encode.
-  const ratio = Math.min(
-    1,
-    maxDimension / Math.max(img.naturalWidth, img.naturalHeight),
-  );
+  const ratio = Math.min(1, maxDimension / Math.max(img.naturalWidth, img.naturalHeight));
   const w = Math.round(img.naturalWidth * ratio);
   const h = Math.round(img.naturalHeight * ratio);
 

@@ -35,7 +35,8 @@ const defaultTrustees = [
 function PriestPage() {
   const { content } = useContent();
   const priest = content.priest || defaultPriest;
-  const trustees = content.trustees && content.trustees.length > 0 ? content.trustees : defaultTrustees;
+  const trustees =
+    content.trustees && content.trustees.length > 0 ? content.trustees : defaultTrustees;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -53,9 +54,7 @@ function PriestPage() {
       {/* Priests */}
       <section className="relative-z mx-auto max-w-6xl w-full px-5 sm:px-6 lg:px-8 py-8 sm:py-10">
         <div className="ornament-divider mb-3">
-          <span className="font-display italic text-xs sm:text-sm tracking-[0.3em]">
-            அர்ச்சகர்
-          </span>
+          <span className="font-display italic text-xs sm:text-sm tracking-[0.3em]">அர்ச்சகர்</span>
         </div>
         <h2 className="text-center font-tamil text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-bold text-ink">
           அர்ச்சகர்

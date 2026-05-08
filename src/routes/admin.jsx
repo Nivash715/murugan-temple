@@ -19,6 +19,16 @@ import {
   StickyNote,
   Users,
   Bell,
+  HandCoins,
+  FileSpreadsheet,
+  FileText,
+  Search,
+  Mail as MailIcon,
+  AlertTriangle,
+  Phone as PhoneIcon,
+  IndianRupee,
+  Hash,
+  CalendarClock,
 } from "lucide-react";
 import logoImg from "@/assets/m12.jpeg";
 import kolam from "@/assets/kolam-ornament.png";
@@ -37,6 +47,12 @@ import { useAuth, DEFAULT_CREDENTIALS } from "@/lib/admin-auth";
 import { useContent, defaultContent, toLocalDateKey } from "@/lib/content-store";
 import { fileToCompressedDataUrl } from "@/lib/image-upload";
 import { triggerLogoutToast } from "@/components/LogoutToast";
+import { useDonationLog } from "@/lib/donation-log";
+import {
+  exportDonationsToPdf,
+  exportDonationsToExcel,
+  exportDonationsToCsv,
+} from "@/lib/donation-export";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -62,6 +78,7 @@ const TABS = [
   { id: "images", label: "படங்கள்", en: "Images", icon: ImageIcon },
   { id: "people", label: "மக்கள் & அறிவிப்புகள்", en: "People & Announcements", icon: Users },
   { id: "notes", label: "நாட்காட்டி குறிப்புகள்", en: "Calendar Notes", icon: CalendarDays },
+  { id: "donations", label: "தான பதிவு", en: "Donations", icon: HandCoins },
   { id: "footer", label: "அடிக்குறிப்பு", en: "Footer", icon: Eye },
   { id: "account", label: "கணக்கு", en: "Account", icon: KeyRound },
 ];
@@ -69,7 +86,15 @@ const TABS = [
 /* -------------------------------------------------------------------------- */
 /*  Reusable form atoms                                                       */
 /* -------------------------------------------------------------------------- */
-function Field({ labelTamil, labelEn, value, onChange, multiline = false, placeholder = "", type = "text" }) {
+function Field({
+  labelTamil,
+  labelEn,
+  value,
+  onChange,
+  multiline = false,
+  placeholder = "",
+  type = "text",
+}) {
   const baseCls =
     "mt-1.5 w-full rounded-xl border border-brass/40 bg-parchment/80 px-4 py-2.5 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-vermillion/40 focus:border-vermillion transition font-tamil-sans text-sm";
   return (
@@ -264,8 +289,9 @@ function AdminPage() {
           </span>
         </h2>
         <p className="mt-2 font-tamil-sans text-ink/70 text-sm sm:text-base max-w-3xl">
-          இந்த பலகையில் நீங்கள் உங்கள் இணையதளத்தின் ஒவ்வொரு பகுதியையும் தனிப்பயனாக்கலாம். மாற்றங்களைச்
-          சேமிக்க <strong className="text-vermillion">சேமி</strong> பொத்தானை அழுத்தவும்.
+          இந்த பலகையில் நீங்கள் உங்கள் இணையதளத்தின் ஒவ்வொரு பகுதியையும் தனிப்பயனாக்கலாம்.
+          மாற்றங்களைச் சேமிக்க <strong className="text-vermillion">சேமி</strong> பொத்தானை
+          அழுத்தவும்.
         </p>
       </section>
 
@@ -329,6 +355,7 @@ function AdminPage() {
         {activeTab === "images" && <ImagesTab draft={draft} update={update} />}
         {activeTab === "people" && <PeopleTab draft={draft} update={update} />}
         {activeTab === "notes" && <NotesTab draft={draft} update={update} />}
+        {activeTab === "donations" && <DonationsTab />}
         {activeTab === "footer" && <FooterTab draft={draft} update={update} />}
         {activeTab === "account" && (
           <AccountTab credentials={credentials} updateCredentials={updateCredentials} />
@@ -564,7 +591,7 @@ function PagesTab({ draft, update }) {
 
       <SectionCard
         titleTamil={`${(PAGE_TITLES[activeSlug] || [activeSlug])[0]} — ஹீரோ`}
-        titleEn={`${(PAGE_TITLES[activeSlug] || [, activeSlug])[1]} — Hero`}
+        titleEn={`${(PAGE_TITLES[activeSlug] || ["", activeSlug])[1]} — Hero`}
       >
         <Field
           labelTamil="மேற்கோள்"
@@ -657,7 +684,9 @@ function ImageSlot({ labelTamil, labelEn, current, defaultImg, onChange, onClear
         )}
       </div>
       <div className="flex-1 min-w-0 flex flex-col">
-        <div className="font-tamil text-base font-semibold text-ink leading-tight">{labelTamil}</div>
+        <div className="font-tamil text-base font-semibold text-ink leading-tight">
+          {labelTamil}
+        </div>
         <div className="font-display italic text-xs text-brass-deep">/ {labelEn}</div>
         <div className="mt-1 text-[0.7rem] font-tamil-sans text-ink/60">
           {current ? "தனிப்பயன் பதிவேற்றம் · Custom upload" : "இயல்புநிலை படம் · Default image"}
@@ -708,8 +737,9 @@ function ImagesTab({ draft, update }) {
     <div className="space-y-5">
       <div className="rounded-2xl border border-brass/30 bg-card/95 p-4 sm:p-5">
         <p className="font-tamil-sans text-sm text-ink/70 leading-relaxed">
-          இங்கே நீங்கள் உங்கள் இணையதளத்தின் முக்கிய படங்களை மாற்றலாம். பெரிய படங்கள் தானாக சுருக்கப்படும்
-          (1600px-க்கு). சேமிக்க <strong className="text-vermillion">சேமி</strong> பொத்தானை அழுத்தவும்.
+          இங்கே நீங்கள் உங்கள் இணையதளத்தின் முக்கிய படங்களை மாற்றலாம். பெரிய படங்கள் தானாக
+          சுருக்கப்படும் (1600px-க்கு). சேமிக்க <strong className="text-vermillion">சேமி</strong>{" "}
+          பொத்தானை அழுத்தவும்.
           <br />
           <span className="text-ink/50 font-display italic">
             Upload custom images for the site below. Files are auto-resized for best performance.
@@ -790,7 +820,10 @@ function PeopleTab({ draft, update }) {
     update(["trustees"], next);
   };
   const removeTrustee = (idx) =>
-    update(["trustees"], trustees.filter((_, i) => i !== idx));
+    update(
+      ["trustees"],
+      trustees.filter((_, i) => i !== idx),
+    );
   const addTrustee = () =>
     update(["trustees"], [...trustees, { name: "திரு புதியவர்", phone: "" }]);
 
@@ -799,9 +832,11 @@ function PeopleTab({ draft, update }) {
     update(["announcements"], next);
   };
   const removeAnnouncement = (idx) =>
-    update(["announcements"], announcements.filter((_, i) => i !== idx));
-  const addAnnouncement = () =>
-    update(["announcements"], [...announcements, "புதிய அறிவிப்பு"]);
+    update(
+      ["announcements"],
+      announcements.filter((_, i) => i !== idx),
+    );
+  const addAnnouncement = () => update(["announcements"], [...announcements, "புதிய அறிவிப்பு"]);
 
   return (
     <>
@@ -915,10 +950,7 @@ function NotesTab({ draft, update }) {
   const [date, setDate] = useState(toLocalDateKey(new Date()));
   const [text, setText] = useState("");
 
-  const sortedKeys = useMemo(
-    () => Object.keys(notes).sort(),
-    [notes],
-  );
+  const sortedKeys = useMemo(() => Object.keys(notes).sort(), [notes]);
 
   const onAddOrUpdate = () => {
     if (!text.trim()) return;
@@ -937,8 +969,9 @@ function NotesTab({ draft, update }) {
     <div className="space-y-5">
       <SectionCard titleTamil="புதிய குறிப்பு சேர்" titleEn="Add / update note">
         <p className="text-xs sm:text-sm font-tamil-sans text-ink/70">
-          ஒரு தேதியைத் தேர்ந்தெடுத்து குறிப்பை எழுதுங்கள். அந்தத் தேதியில் ஏற்கனவே குறிப்பு இருந்தால்,
-          அது புதுப்பிக்கப்படும். குறிப்பு உள்ள தேதிகள் நாட்காட்டியில் சிறப்பு புள்ளியுடன் காட்டப்படும்.
+          ஒரு தேதியைத் தேர்ந்தெடுத்து குறிப்பை எழுதுங்கள். அந்தத் தேதியில் ஏற்கனவே குறிப்பு
+          இருந்தால், அது புதுப்பிக்கப்படும். குறிப்பு உள்ள தேதிகள் நாட்காட்டியில் சிறப்பு
+          புள்ளியுடன் காட்டப்படும்.
           <br />
           <span className="text-ink/50 font-display italic">
             Pick a date and write a note — it will appear with a marker on the public calendar.
@@ -946,13 +979,7 @@ function NotesTab({ draft, update }) {
         </p>
 
         <div className="grid sm:grid-cols-3 gap-3">
-          <Field
-            labelTamil="தேதி"
-            labelEn="Date"
-            type="date"
-            value={date}
-            onChange={setDate}
-          />
+          <Field labelTamil="தேதி" labelEn="Date" type="date" value={date} onChange={setDate} />
           <div className="sm:col-span-2">
             <Field
               labelTamil="குறிப்பு"
@@ -1060,6 +1087,432 @@ function FooterTab({ draft, update }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  DONATIONS TAB                                                             */
+/* -------------------------------------------------------------------------- */
+function formatINR(amount) {
+  const v = Number(amount) || 0;
+  try {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(v);
+  } catch {
+    return `₹${v}`;
+  }
+}
+
+function formatTimestamp(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  try {
+    return new Intl.DateTimeFormat("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(d);
+  } catch {
+    return d.toString();
+  }
+}
+
+function DonationsTab() {
+  const { entries, deleteEntry, clearAll } = useDonationLog();
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [exporting, setExporting] = useState(null);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return entries.filter((row) => {
+      if (statusFilter !== "all" && row.emailStatus !== statusFilter) return false;
+      if (!q) return true;
+      const haystack = [row.name, row.phone, row.email, row.receiptId, String(row.amount)]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [entries, query, statusFilter]);
+
+  const totalAmount = useMemo(
+    () => filtered.reduce((sum, r) => sum + (Number(r.amount) || 0), 0),
+    [filtered],
+  );
+
+  const totalAll = useMemo(
+    () => entries.reduce((sum, r) => sum + (Number(r.amount) || 0), 0),
+    [entries],
+  );
+
+  const sentCount = useMemo(
+    () => entries.filter((r) => r.emailStatus === "sent").length,
+    [entries],
+  );
+  const failedCount = useMemo(
+    () => entries.filter((r) => r.emailStatus === "failed").length,
+    [entries],
+  );
+  const pendingCount = useMemo(
+    () => entries.filter((r) => r.emailStatus === "pending").length,
+    [entries],
+  );
+
+  const handleExportPdf = async () => {
+    setErrorMsg("");
+    setExporting("pdf");
+    try {
+      await exportDonationsToPdf(filtered);
+    } catch (err) {
+      console.error("PDF export failed", err);
+      setErrorMsg("PDF export failed: " + (err.message || "unknown error"));
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    setErrorMsg("");
+    setExporting("xlsx");
+    try {
+      await exportDonationsToExcel(filtered);
+    } catch (err) {
+      console.error("Excel export failed", err);
+      setErrorMsg("Excel export failed: " + (err.message || "unknown error"));
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const handleExportCsv = async () => {
+    setErrorMsg("");
+    setExporting("csv");
+    try {
+      exportDonationsToCsv(filtered);
+    } catch (err) {
+      console.error("CSV export failed", err);
+      setErrorMsg("CSV export failed: " + (err.message || "unknown error"));
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const handleDelete = (id, name) => {
+    if (
+      window.confirm(
+        `${name || "This entry"} — பதிவை நீக்கவா? Delete this donation log entry? This cannot be undone.`,
+      )
+    ) {
+      deleteEntry(id);
+    }
+  };
+
+  const handleClearAll = () => {
+    if (
+      window.confirm(
+        "அனைத்து தான பதிவுகளையும் நீக்கவா? Clear ALL donation logs? This cannot be undone.",
+      )
+    ) {
+      clearAll();
+    }
+  };
+
+  return (
+    <div className="space-y-5">
+      {/* Stats strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatCard
+          icon={<HandCoins size={18} className="text-vermillion" />}
+          labelTamil="மொத்த பதிவுகள்"
+          labelEn="Total entries"
+          value={String(entries.length)}
+        />
+        <StatCard
+          icon={<IndianRupee size={18} className="text-brass-deep" />}
+          labelTamil="மொத்த தொகை"
+          labelEn="Total amount"
+          value={formatINR(totalAll)}
+        />
+        <StatCard
+          icon={<MailIcon size={18} className="text-emerald-700" />}
+          labelTamil="அனுப்பப்பட்டவை"
+          labelEn="Emails sent"
+          value={String(sentCount)}
+        />
+        <StatCard
+          icon={<AlertTriangle size={18} className="text-amber-700" />}
+          labelTamil="தோல்வி / நிலுவை"
+          labelEn="Failed / pending"
+          value={`${failedCount} / ${pendingCount}`}
+        />
+      </div>
+
+      <SectionCard
+        titleTamil="தான பதிவுகள் & ஏற்றுமதி"
+        titleEn="Donation Log & Export"
+      >
+        <p className="text-xs sm:text-sm font-tamil-sans text-ink/70 leading-relaxed">
+          இந்த பகுதியில் தான படிவத்தை சமர்ப்பித்த பக்தர்களின் முழு விவரங்களும் காட்டப்படும்.
+          PDF அல்லது Excel ஃபார்மட்டில் ஏற்றுமதி செய்யலாம், ஒவ்வொரு பதிவையும் நீக்கலாம்.
+          <br />
+          <span className="text-ink/50 font-display italic">
+            All donation form submissions are listed below. Filter, search, delete or export
+            them as a PDF / Excel sheet.
+          </span>
+        </p>
+
+        {/* Toolbar */}
+        <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+          <div className="flex flex-wrap gap-2 items-center flex-1">
+            <div className="relative flex-1 min-w-[200px] max-w-md">
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/40"
+              />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="பெயர் / எண் / ரசீது தேடு · Search"
+                className="w-full pl-9 pr-3 py-2 rounded-xl border border-brass/40 bg-parchment/80 text-sm font-tamil-sans focus:outline-none focus:ring-2 focus:ring-vermillion/40 focus:border-vermillion"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 rounded-xl border border-brass/40 bg-parchment/80 text-sm font-tamil-sans focus:outline-none focus:ring-2 focus:ring-vermillion/40 focus:border-vermillion"
+            >
+              <option value="all">அனைத்தும் · All</option>
+              <option value="sent">Sent</option>
+              <option value="failed">Failed</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleExportPdf}
+              disabled={exporting === "pdf" || filtered.length === 0}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-gradient-sunset text-parchment text-xs font-tamil-sans font-semibold shadow-brass hover:shadow-temple disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              <FileText size={14} />
+              {exporting === "pdf" ? "தயாராகிறது..." : "PDF"}
+            </button>
+            <button
+              type="button"
+              onClick={handleExportExcel}
+              disabled={exporting === "xlsx" || filtered.length === 0}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-brass-deep text-ink text-xs font-tamil-sans font-semibold hover:bg-brass/10 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              <FileSpreadsheet size={14} />
+              {exporting === "xlsx" ? "தயாராகிறது..." : "Excel"}
+            </button>
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              disabled={exporting === "csv" || filtered.length === 0}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-brass/40 text-ink/80 text-xs font-tamil-sans hover:bg-brass/10 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              <Upload size={14} className="rotate-180" />
+              CSV
+            </button>
+            <button
+              type="button"
+              onClick={handleClearAll}
+              disabled={entries.length === 0}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-destructive/40 text-destructive text-xs font-tamil-sans hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              <Trash2 size={14} /> அனைத்தையும் நீக்கு
+            </button>
+          </div>
+        </div>
+
+        {errorMsg ? (
+          <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-2 text-xs sm:text-sm text-destructive font-tamil-sans">
+            {errorMsg}
+          </div>
+        ) : null}
+
+        {/* Result summary */}
+        <div className="text-xs sm:text-sm font-tamil-sans text-ink/70">
+          {filtered.length} / {entries.length} பதிவுகள் காட்டப்படுகிறது ·{" "}
+          <span className="font-semibold text-ink">{formatINR(totalAmount)}</span> totalled.
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto rounded-xl border border-brass/30 bg-parchment/60">
+          <table className="w-full min-w-[760px] text-sm font-tamil-sans">
+            <thead>
+              <tr className="bg-ink text-brass">
+                <th className="px-3 py-2 text-left font-display italic text-xs tracking-widest">
+                  #
+                </th>
+                <th className="px-3 py-2 text-left font-display italic text-xs tracking-widest">
+                  Submitted
+                </th>
+                <th className="px-3 py-2 text-left font-display italic text-xs tracking-widest">
+                  Receipt
+                </th>
+                <th className="px-3 py-2 text-left font-display italic text-xs tracking-widest">
+                  Donor
+                </th>
+                <th className="px-3 py-2 text-left font-display italic text-xs tracking-widest">
+                  Contact
+                </th>
+                <th className="px-3 py-2 text-right font-display italic text-xs tracking-widest">
+                  Amount
+                </th>
+                <th className="px-3 py-2 text-left font-display italic text-xs tracking-widest">
+                  Email
+                </th>
+                <th className="px-3 py-2 text-right font-display italic text-xs tracking-widest">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="px-4 py-10 text-center text-ink/60 font-tamil-sans text-sm"
+                  >
+                    {entries.length === 0
+                      ? "இதுவரை எந்த தான படிவமும் சமர்ப்பிக்கப்படவில்லை. No donations submitted yet."
+                      : "தேடல் / வடிகட்டலுக்குத் தகுந்த பதிவுகள் இல்லை. No matching entries."}
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((row, i) => (
+                  <tr
+                    key={row.id}
+                    className={
+                      "border-t border-brass/20 " +
+                      (i % 2 === 0 ? "bg-parchment/40" : "bg-parchment/70")
+                    }
+                  >
+                    <td className="px-3 py-2 align-top text-ink/70 text-xs">
+                      {i + 1}
+                    </td>
+                    <td className="px-3 py-2 align-top whitespace-nowrap text-ink/85">
+                      <div className="flex items-start gap-1.5">
+                        <CalendarClock
+                          size={13}
+                          className="mt-0.5 shrink-0 text-brass-deep"
+                        />
+                        <span>{formatTimestamp(row.submittedAt)}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 align-top whitespace-nowrap text-ink/80">
+                      <div className="flex items-start gap-1.5">
+                        <Hash size={12} className="mt-0.5 shrink-0 text-brass-deep" />
+                        <span className="font-mono text-xs">{row.receiptId}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 align-top text-ink font-semibold">
+                      {row.name || "—"}
+                    </td>
+                    <td className="px-3 py-2 align-top text-ink/85 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <PhoneIcon size={11} className="text-brass-deep" />
+                        <span>{row.phone || "—"}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <MailIcon size={11} className="text-brass-deep" />
+                        <a
+                          href={`mailto:${row.email}`}
+                          className="hover:underline break-all"
+                        >
+                          {row.email || "—"}
+                        </a>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 align-top text-right text-ink font-semibold whitespace-nowrap">
+                      {formatINR(row.amount)}
+                    </td>
+                    <td className="px-3 py-2 align-top">
+                      <EmailStatusBadge status={row.emailStatus} error={row.emailError} />
+                    </td>
+                    <td className="px-3 py-2 align-top text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(row.id, row.name)}
+                        className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-destructive/30 text-destructive hover:bg-destructive/10 transition"
+                        title="Delete · நீக்கு"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
+function StatCard({ icon, labelTamil, labelEn, value }) {
+  return (
+    <div className="rounded-2xl border border-brass/30 bg-card/95 shadow-soft p-4">
+      <div className="flex items-center gap-2 text-ink/60">
+        {icon}
+        <div className="font-tamil text-xs sm:text-sm font-semibold text-ink/80">
+          {labelTamil}
+        </div>
+      </div>
+      <div className="mt-1 font-display italic text-[0.65rem] tracking-widest text-brass-deep">
+        / {labelEn}
+      </div>
+      <div className="mt-2 font-tamil text-xl sm:text-2xl font-bold text-ink leading-tight">
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function EmailStatusBadge({ status, error }) {
+  if (status === "sent") {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-[0.7rem] font-tamil-sans">
+        <Check size={11} /> Sent
+      </span>
+    );
+  }
+  if (status === "failed") {
+    return (
+      <span
+        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-destructive/10 border border-destructive/40 text-destructive text-[0.7rem] font-tamil-sans"
+        title={error || "Email send failed"}
+      >
+        <AlertTriangle size={11} /> Failed
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-[0.7rem] font-tamil-sans">
+      <Loader2Inline /> Pending
+    </span>
+  );
+}
+
+function Loader2Inline() {
+  return (
+    <span
+      aria-hidden
+      className="inline-block w-2.5 h-2.5 rounded-full border-2 border-amber-700 border-t-transparent animate-spin"
+    />
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  ACCOUNT TAB                                                               */
 /* -------------------------------------------------------------------------- */
 function AccountTab({ credentials, updateCredentials }) {
@@ -1092,16 +1545,11 @@ function AccountTab({ credentials, updateCredentials }) {
   return (
     <SectionCard titleTamil="நிர்வாகி கணக்கு" titleEn="Admin Account">
       <p className="text-xs sm:text-sm font-tamil-sans text-ink/70">
-        இங்கே நீங்கள் நிர்வாகி பயனர் பெயர் மற்றும் கடவுச்சொல்லை மாற்றலாம். இவை இந்த உலாவியில் மட்டும்
-        சேமிக்கப்படுகின்றன.
+        இங்கே நீங்கள் நிர்வாகி பயனர் பெயர் மற்றும் கடவுச்சொல்லை மாற்றலாம். இவை இந்த உலாவியில்
+        மட்டும் சேமிக்கப்படுகின்றன.
       </p>
       <form onSubmit={onSave} className="space-y-4">
-        <Field
-          labelTamil="பயனர் பெயர்"
-          labelEn="User ID"
-          value={userId}
-          onChange={setUserId}
-        />
+        <Field labelTamil="பயனர் பெயர்" labelEn="User ID" value={userId} onChange={setUserId} />
         <PasswordField
           labelTamil="புதிய கடவுச்சொல்"
           labelEn="New password"

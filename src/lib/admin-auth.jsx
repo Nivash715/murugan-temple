@@ -58,22 +58,22 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = useCallback(
-    (userId, password) => {
-      const creds = loadCredentials();
-      if (userId === creds.userId && password === creds.password) {
-        setIsAuthed(true);
-        try {
-          window.sessionStorage.setItem(SESSION_KEY, "1");
-        } catch {
-          /* ignore */
-        }
-        return { ok: true };
+  const login = useCallback((userId, password) => {
+    const creds = loadCredentials();
+    if (userId === creds.userId && password === creds.password) {
+      setIsAuthed(true);
+      try {
+        window.sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        /* ignore */
       }
-      return { ok: false, error: "தவறான பயனர் பெயர் அல்லது கடவுச்சொல் (Invalid user id or password)" };
-    },
-    [],
-  );
+      return { ok: true };
+    }
+    return {
+      ok: false,
+      error: "தவறான பயனர் பெயர் அல்லது கடவுச்சொல் (Invalid user id or password)",
+    };
+  }, []);
 
   const logout = useCallback(() => {
     setIsAuthed(false);

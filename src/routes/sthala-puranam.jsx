@@ -131,7 +131,7 @@ function SthalaPuranam() {
               <div className="absolute -inset-3 bg-gradient-sunset rounded-3xl blur-3xl opacity-20 pointer-events-none" />
               <div className="relative rounded-3xl overflow-hidden border-2 border-brass/40 shadow-temple aspect-[4/3]">
                 <img
-                  src={ templeNightNew }
+                  src={templeNightNew}
                   alt="ஸ்ரீ வள்ளி தேவசேனா சமய சுப்ரமணியர் ஆலயம் — இரவு அலங்காரம்"
                   className="h-full w-full object-cover"
                   loading="lazy"
@@ -329,17 +329,22 @@ function SthalaPuranam() {
             style={{ height: "420px", scrollbarWidth: "thin", scrollbarColor: "#cc7722 #1a1209" }}
           >
             <div className="space-y-6 font-tamil text-base sm:text-lg leading-[2.1]">
-
               <div>
-                <p className="font-display italic text-brass text-xs tracking-widest mb-3">காப்பு</p>
-                <p className="text-parchment/90">துதிப்போர்க்கு வல்வினை போம் துன்பம் போம் நெஞ்சில்</p>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">
+                  காப்பு
+                </p>
+                <p className="text-parchment/90">
+                  துதிப்போர்க்கு வல்வினை போம் துன்பம் போம் நெஞ்சில்
+                </p>
                 <p className="text-parchment/90">பதிப்போர்க்கு செல்வம் பலிக்கும் விதிப்போர்க்கு</p>
                 <p className="text-parchment/90">குன்றாத ஆனந்தம் கூடும் கந்தனருள்</p>
                 <p className="text-parchment/90">என்றும் சிவமயமாம் ஏத்து.</p>
               </div>
 
               <div>
-                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 1</p>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">
+                  நூல் — 1
+                </p>
                 <p className="text-parchment/90">வேலும் மயிலும் விளங்கும் செல்வனே</p>
                 <p className="text-parchment/90">வாலிபனே மலையாளா வடிவேலா</p>
                 <p className="text-parchment/90">தேவர்கள் போற்றும் சேவல் கொடியோனே</p>
@@ -347,7 +352,9 @@ function SthalaPuranam() {
               </div>
 
               <div>
-                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 2</p>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">
+                  நூல் — 2
+                </p>
                 <p className="text-parchment/90">சூரனை வென்ற சொல்ல அரிய வேலோய்</p>
                 <p className="text-parchment/90">ஆறுமுக நாதனே அருள்புரிவாயே</p>
                 <p className="text-parchment/90">கார்த்திகை நாளில் கவசம் அணிந்தவர்</p>
@@ -355,7 +362,9 @@ function SthalaPuranam() {
               </div>
 
               <div>
-                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 3</p>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">
+                  நூல் — 3
+                </p>
                 <p className="text-parchment/90">காவல் புரிவாய் கந்தா சரணம்</p>
                 <p className="text-parchment/90">தேவர் குருவே திகழும் சரணம்</p>
                 <p className="text-parchment/90">பாவம் அகற்றும் பழனி சரணம்</p>
@@ -363,7 +372,9 @@ function SthalaPuranam() {
               </div>
 
               <div>
-                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 4</p>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">
+                  நூல் — 4
+                </p>
                 <p className="text-parchment/90">சிரம் காக்க செந்தில் வேலவனே</p>
                 <p className="text-parchment/90">நெற்றி காக்க நிறைவேல் முருகனே</p>
                 <p className="text-parchment/90">கண்ணை காக்க கந்தா வேலவனே</p>
@@ -371,7 +382,9 @@ function SthalaPuranam() {
               </div>
 
               <div>
-                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 5</p>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">
+                  நூல் — 5
+                </p>
                 <p className="text-parchment/90">மூக்கை காக்க முருக வேலவனே</p>
                 <p className="text-parchment/90">வாயை காக்க வடிவேல் முருகனே</p>
                 <p className="text-parchment/90">கழுத்தை காக்க கந்த வேலோனே</p>
@@ -379,7 +392,9 @@ function SthalaPuranam() {
               </div>
 
               <div>
-                <p className="font-display italic text-brass text-xs tracking-widest mb-3">நூல் — 6</p>
+                <p className="font-display italic text-brass text-xs tracking-widest mb-3">
+                  நூல் — 6
+                </p>
                 <p className="text-parchment/90">நெஞ்சை காக்க நிறைவேல் முருகனே</p>
                 <p className="text-parchment/90">வயிற்றை காக்க வல்ல வேலவனே</p>
                 <p className="text-parchment/90">முதுகை காக்க மும்மூர்த்தி வேலா</p>
@@ -399,7 +414,6 @@ function SthalaPuranam() {
                   ஓம் சரவண பவ 🙏 முருகா சரணம்
                 </p>
               </div>
-
             </div>
           </div>
         </div>

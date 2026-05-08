@@ -8,80 +8,80 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as TempleStructureRouteImport } from './routes/temple-structure'
-import { Route as TempleHistoryRouteImport } from './routes/temple-history'
-import { Route as SthalaPuranamRouteImport } from './routes/sthala-puranam'
-import { Route as PriestRouteImport } from './routes/priest'
-import { Route as FestivalsRouteImport } from './routes/festivals'
-import { Route as EventsRouteImport } from './routes/events'
-import { Route as DonateRouteImport } from './routes/donate'
-import { Route as DeitiesRouteImport } from './routes/deities'
-import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AdminLoginRouteImport } from './routes/admin_.login'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as TempleStructureRouteImport } from "./routes/temple-structure";
+import { Route as TempleHistoryRouteImport } from "./routes/temple-history";
+import { Route as SthalaPuranamRouteImport } from "./routes/sthala-puranam";
+import { Route as PriestRouteImport } from "./routes/priest";
+import { Route as FestivalsRouteImport } from "./routes/festivals";
+import { Route as EventsRouteImport } from "./routes/events";
+import { Route as DonateRouteImport } from "./routes/donate";
+import { Route as DeitiesRouteImport } from "./routes/deities";
+import { Route as CalendarRouteImport } from "./routes/calendar";
+import { Route as AdminRouteImport } from "./routes/admin";
+import { Route as AdminLoginRouteImport } from "./routes/admin_.login";
+import { Route as IndexRouteImport } from "./routes/index";
 
 const TempleStructureRoute = TempleStructureRouteImport.update({
-  id: '/temple-structure',
-  path: '/temple-structure',
+  id: "/temple-structure",
+  path: "/temple-structure",
   getParentRoute: () => rootRouteImport,
-})
+});
 const TempleHistoryRoute = TempleHistoryRouteImport.update({
-  id: '/temple-history',
-  path: '/temple-history',
+  id: "/temple-history",
+  path: "/temple-history",
   getParentRoute: () => rootRouteImport,
-})
+});
 const SthalaPuranamRoute = SthalaPuranamRouteImport.update({
-  id: '/sthala-puranam',
-  path: '/sthala-puranam',
+  id: "/sthala-puranam",
+  path: "/sthala-puranam",
   getParentRoute: () => rootRouteImport,
-})
+});
 const PriestRoute = PriestRouteImport.update({
-  id: '/priest',
-  path: '/priest',
+  id: "/priest",
+  path: "/priest",
   getParentRoute: () => rootRouteImport,
-})
+});
 const FestivalsRoute = FestivalsRouteImport.update({
-  id: '/festivals',
-  path: '/festivals',
+  id: "/festivals",
+  path: "/festivals",
   getParentRoute: () => rootRouteImport,
-})
+});
 const EventsRoute = EventsRouteImport.update({
-  id: '/events',
-  path: '/events',
+  id: "/events",
+  path: "/events",
   getParentRoute: () => rootRouteImport,
-})
+});
 const DonateRoute = DonateRouteImport.update({
-  id: '/donate',
-  path: '/donate',
+  id: "/donate",
+  path: "/donate",
   getParentRoute: () => rootRouteImport,
-})
+});
 const DeitiesRoute = DeitiesRouteImport.update({
-  id: '/deities',
-  path: '/deities',
+  id: "/deities",
+  path: "/deities",
   getParentRoute: () => rootRouteImport,
-})
+});
 const CalendarRoute = CalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
+  id: "/calendar",
+  path: "/calendar",
   getParentRoute: () => rootRouteImport,
-})
+});
 const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+  id: "/admin",
+  path: "/admin",
   getParentRoute: () => rootRouteImport,
-})
+});
 const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin_/login',
-  path: '/admin/login',
+  id: "/admin_/login",
+  path: "/admin/login",
   getParentRoute: () => rootRouteImport,
-})
+});
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-})
+});
 
 const rootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -96,8 +96,6 @@ const rootRouteChildren = {
   SthalaPuranamRoute: SthalaPuranamRoute,
   TempleHistoryRoute: TempleHistoryRoute,
   TempleStructureRoute: TempleStructureRoute,
-}
+};
 
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes()
+export const routeTree = rootRouteImport._addFileChildren(rootRouteChildren)._addFileTypes();

@@ -58,7 +58,6 @@ export function SiteFooter() {
       <div className="relative mx-auto max-w-7xl px-6 sm:px-10 lg:px-14 py-7">
         {/* Top section: Temple name and Social Links */}
         <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-6 mb-6">
-
           {/* Temple name */}
           <div className="flex flex-col items-center sm:items-start gap-0.5 text-center sm:text-left">
             <span className="font-display italic text-brass/70 tracking-[0.2em] text-[0.58rem] uppercase">

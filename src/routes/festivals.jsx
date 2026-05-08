@@ -56,9 +56,7 @@ const upcoming = [
   },
   { month: "அக்", day: "02", tamil: "நவராத்திரி", en: "Navarathri", note: "9 இரவு அம்பாள் கொலு" },
 ];
-const defaultAnnouncements = [
-  "மே 15 அன்று காலை 6:00 மணிக்கு சிறப்பு கங்காபிஷேகம் நடைபெறும்.",
-];
+const defaultAnnouncements = ["மே 15 அன்று காலை 6:00 மணிக்கு சிறப்பு கங்காபிஷேகம் நடைபெறும்."];
 
 function FestivalsPage() {
   const { content } = useContent();
@@ -135,7 +133,9 @@ function FestivalsPage() {
         <div className="flex justify-center">
           <div className="relative p-6 rounded-2xl bg-gradient-sanctum text-parchment overflow-hidden w-full max-w-md">
             <Calendar className="absolute -right-4 -bottom-4 opacity-20" size={120} />
-            <div className="relative font-tamil text-base sm:text-lg leading-relaxed">{announcements[0]}</div>
+            <div className="relative font-tamil text-base sm:text-lg leading-relaxed">
+              {announcements[0]}
+            </div>
           </div>
         </div>
       </section>

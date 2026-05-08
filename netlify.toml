@@ -1,9 +1,18 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  functions = "netlify/functions"
 
+# Route the /api/* endpoints to the Netlify Functions runtime so the same fetch
+# URL works on both Netlify and Vercel deployments.
+[[redirects]]
+  from = "/api/send-receipt"
+  to = "/.netlify/functions/send-receipt"
+  status = 200
+  force = true
+
+# SPA fallback — keep last so the API rewrite above takes precedence.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = true

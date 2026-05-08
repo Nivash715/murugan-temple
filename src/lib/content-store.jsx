@@ -55,15 +55,13 @@ export const defaultContent = {
       eyebrow: "Sthala Puranam · ஸ்தல புராணம்",
       titleTamil: "ஸ்தல புராணம்",
       titleEn: "Sacred Lore",
-      description:
-        "ஆன்மீக முக்கியத்துவம், புராணக் கதைகள் மற்றும் இந்த தலத்தின் பெருமைகள்.",
+      description: "ஆன்மீக முக்கியத்துவம், புராணக் கதைகள் மற்றும் இந்த தலத்தின் பெருமைகள்.",
     },
     "temple-structure": {
       eyebrow: "Architecture · அமைப்பு",
       titleTamil: "ஆலய அமைப்பு",
       titleEn: "Temple Structure",
-      description:
-        "கோபுரம், மண்டபம், சன்னதி உள்ளிட்ட ஆலய அமைப்பின் நுட்பமான விவரங்கள்.",
+      description: "கோபுரம், மண்டபம், சன்னதி உள்ளிட்ட ஆலய அமைப்பின் நுட்பமான விவரங்கள்.",
     },
     deities: {
       eyebrow: "Deities · தெய்வங்கள்",
@@ -82,8 +80,7 @@ export const defaultContent = {
       eyebrow: "Festivals · விழாக்கள்",
       titleTamil: "விழாக்கள்",
       titleEn: "Sacred Festivals",
-      description:
-        "வரவிருக்கும் விழாக்கள், தரிசன வேளைகள் மற்றும் சிறப்பு பூஜைகள்.",
+      description: "வரவிருக்கும் விழாக்கள், தரிசன வேளைகள் மற்றும் சிறப்பு பூஜைகள்.",
     },
     calendar: {
       eyebrow: "Calendar · நாட்காட்டி",
@@ -118,9 +115,7 @@ export const defaultContent = {
   ],
 
   // ---------------- Announcements (used by /festivals) ----------------
-  announcements: [
-    "மே 15 அன்று காலை 6:00 மணிக்கு சிறப்பு கங்காபிஷேகம் நடைபெறும்.",
-  ],
+  announcements: ["மே 15 அன்று காலை 6:00 மணிக்கு சிறப்பு கங்காபிஷேகம் நடைபெறும்."],
 
   // ---------------- Footer ----------------
   footer: {
@@ -280,4 +275,3 @@ export function toLocalDateKey(date) {
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
-

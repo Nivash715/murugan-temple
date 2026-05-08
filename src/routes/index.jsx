@@ -127,7 +127,7 @@ function Index() {
 
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10 pt-12 sm:pt-16 lg:pt-24 pb-16 sm:pb-24 lg:pb-32 grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           <div className="lg:col-span-7">
-              <h1 className="mt-4 sm:mt-5 font-tamil text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-ink leading-[1.1]">
+            <h1 className="mt-4 sm:mt-5 font-tamil text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-ink leading-[1.1]">
               {home.heroTamilLine1}
               <br />
               <span className="text-vermillion">{home.heroTamilLine2}</span>

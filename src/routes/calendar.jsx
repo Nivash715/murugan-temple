@@ -136,7 +136,6 @@ const festivalMap = {
   "12-26": { ta: "மார்கழி அமாவாசை", en: "Margazhi Amavasai" },
   "1-16": { ta: "மாட்டுப்பொங்கல்", en: "Mattu Pongal" },
   "1-17": { ta: "கனும பொங்கல்", en: "Kanum Pongal" },
-  "1-26": { ta: "தைப்பூசம் ★ முருகன்", en: "Thaipusam (Murugan)" },
   "1-27": { ta: "தைப்பூசம் அடுத்த நாள்", en: "Day after Thaipusam" },
   "2-5": { ta: "மகா சிவராத்திரி", en: "Maha Shivaratri" },
   "2-19": { ta: "மாசி மகம் ★ முருகன்", en: "Maasi Magam (Murugan)" },
@@ -147,7 +146,6 @@ const festivalMap = {
   "3-10": { ta: "பங்குனி உத்திரம்", en: "Panguni Uthiram" },
   "3-20": { ta: "பங்குனி திருவிழா", en: "Panguni Thiruvizha" },
   "3-28": { ta: "பங்குனி பூரம் ★ முருகன்", en: "Panguni Puram (Murugan)" },
-  "4-14": { ta: "தமிழ் புத்தாண்டு", en: "Tamil New Year" },
 };
 
 function getTamilMonthIndex(d) {

@@ -23,11 +23,7 @@ export function SiteHeader() {
             className="group block"
           >
             <div className="h-12 w-12 sm:h-14 sm:w-14 overflow-hidden rounded-3xl border border-parchment/30 bg-parchment/10 shadow-sm ring-0 group-hover:ring-2 group-hover:ring-parchment/40 transition">
-              <img
-                src={logoSrc}
-                alt="Temple logo"
-                className="h-full w-full object-cover"
-              />
+              <img src={logoSrc} alt="Temple logo" className="h-full w-full object-cover" />
             </div>
           </Link>
 
