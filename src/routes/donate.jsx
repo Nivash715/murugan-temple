@@ -349,7 +349,7 @@ function DonatePage() {
                   className="mt-6 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-gradient-sunset text-parchment font-tamil font-semibold shadow-brass hover:shadow-temple transition-all"
                 >
                   {copied ? <Check size={18} /> : <Copy size={18} />}
-                  {copied ? "நகலெடுக்கப்பட்டது" : `UPI: ${UPI_ID}`}
+                  {copied ? "🦚Copied..." : `UPI: ${UPI_ID}`}
                 </button>
               </div>
             </div>
