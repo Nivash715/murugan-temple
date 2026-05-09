@@ -7,20 +7,17 @@ import donationImg from "@/assets/Donation.jpg";
 import upiQr from "@/assets/Upi.jpeg";
 import {
   generateReceiptPdf,
-  downloadReceiptBlob,
   preloadJsPdf,
 } from "@/lib/pdf-receipt";
-import { sendDonationReceipt, buildReceiptMailto } from "@/lib/donation-email";
+import { sendDonationReceipt } from "@/lib/donation-email";
 import { useDonationLog } from "@/lib/donation-log";
+import { useContent } from "@/lib/content-store";
 import {
   Copy,
   Check,
   MapPin,
   Navigation,
   Upload,
-  Loader2,
-  Download,
-  Mail,
   AlertTriangle,
 } from "lucide-react";
 
@@ -46,7 +43,7 @@ export const Route = createFileRoute("/donate")({
   component: DonatePage,
 });
 
-const UPI_ID = "gokulsaravanan633@okicici";
+const DEFAULT_UPI_ID = "gokulsaravanan633@okicici";
 
 function makeReceiptId() {
   const now = new Date();
@@ -73,6 +70,10 @@ function formatIssuedAt(date = new Date()) {
 }
 
 function DonatePage() {
+  const { content } = useContent();
+  const upiId = content?.payment?.upiId || DEFAULT_UPI_ID;
+  const qrSrc = content?.payment?.upiQrImage || upiQr;
+
   const [copied, setCopied] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -91,39 +92,20 @@ function DonatePage() {
 
   const copyUpi = async () => {
     try {
-      await navigator.clipboard.writeText(UPI_ID);
+      await navigator.clipboard.writeText(upiId);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch (err) {
       console.error("Failed to copy:", err);
       // Fallback for older browsers
       const textArea = document.createElement("textarea");
-      textArea.value = UPI_ID;
+      textArea.value = upiId;
       document.body.appendChild(textArea);
       textArea.select();
       document.execCommand("copy");
       document.body.removeChild(textArea);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-    }
-  };
-
-  const copyUpiFromCard = async () => {
-    try {
-      await navigator.clipboard.writeText(UPI_ID);
-      setCopiedUpiCard(true);
-      setTimeout(() => setCopiedUpiCard(false), 2500);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-      // Fallback for older browsers
-      const textArea = document.createElement("textarea");
-      textArea.value = UPI_ID;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      setCopiedUpiCard(true);
-      setTimeout(() => setCopiedUpiCard(false), 2500);
     }
   };
 
@@ -169,7 +151,7 @@ function DonatePage() {
         phone: trimmedPhone,
         email: trimmedEmail,
         amount: numericAmount,
-        upiId: UPI_ID,
+        upiId,
         issuedAt,
         emailStatus: "pending",
         screenshotName: screenshot?.name || "",
@@ -182,20 +164,10 @@ function DonatePage() {
         receiptId,
         issuedAt,
         donorName: trimmedName,
-        donorPhone: trimmedPhone,
-        email: trimmedEmail,
-        amount: numericAmount,
-        pdfState: "preparing",
-        pdfBlob: null,
-        pdfFilename: null,
-        pdfBase64: null,
-        pdfError: null,
-        emailState: "sending",
-        emailError: null,
       });
       resetForm();
 
-      // 4. Background work — never blocks the form.
+      // 4. Background work — silently updates the log with receipt/email status.
       runBackgroundDelivery(logEntry.id, {
         receiptId,
         issuedAt,
@@ -203,7 +175,7 @@ function DonatePage() {
         phone: trimmedPhone,
         email: trimmedEmail,
         amount: numericAmount,
-      });
+      }, upiId);
     } catch (err) {
       console.error("Submit handler crashed:", err);
       setStatus({
@@ -214,78 +186,39 @@ function DonatePage() {
     }
   };
 
-  const runBackgroundDelivery = async (logId, fields) => {
+  const runBackgroundDelivery = async (logId, fields, currentUpiId) => {
     let receipt = null;
     try {
-      receipt = await generateReceiptPdf({ ...fields, upiId: UPI_ID });
+      receipt = await generateReceiptPdf({ ...fields, upiId: currentUpiId });
       log.updateEntry(logId, {
         receiptId: receipt.receiptId,
         issuedAt: receipt.issuedAt,
       });
-      setStatus((prev) =>
-        prev.kind === "success" && prev.logId === logId
-          ? {
-              ...prev,
-              pdfState: "ready",
-              pdfBlob: receipt.blob,
-              pdfFilename: receipt.filename,
-              pdfBase64: receipt.base64,
-              receiptId: receipt.receiptId,
-              issuedAt: receipt.issuedAt,
-              pdfError: null,
-            }
-          : prev,
-      );
     } catch (err) {
       console.warn("Background PDF gen failed:", err);
       log.updateEntry(logId, {
         emailStatus: "failed",
         emailError: "PDF: " + (err?.message || err),
       });
-      setStatus((prev) =>
-        prev.kind === "success" && prev.logId === logId
-          ? {
-              ...prev,
-              pdfState: "failed",
-              pdfError: err?.message || "PDF generation failed",
-              emailState: "failed",
-              emailError: "PDF could not be generated; email not sent.",
-            }
-          : prev,
-      );
       return;
     }
 
     try {
       await sendDonationReceipt({
         ...fields,
-        upiId: UPI_ID,
+        upiId: currentUpiId,
         receiptId: receipt.receiptId,
         issuedAt: receipt.issuedAt,
         pdfBase64: receipt.base64,
         pdfFilename: receipt.filename,
       });
       log.updateEntry(logId, { emailStatus: "sent", emailError: "" });
-      setStatus((prev) =>
-        prev.kind === "success" && prev.logId === logId
-          ? { ...prev, emailState: "sent", emailError: null }
-          : prev,
-      );
     } catch (err) {
       console.warn("Background email failed:", err);
       log.updateEntry(logId, {
         emailStatus: "failed",
         emailError: err?.message || "Email send failed",
       });
-      setStatus((prev) =>
-        prev.kind === "success" && prev.logId === logId
-          ? {
-              ...prev,
-              emailState: "failed",
-              emailError: err?.message || "Email send failed",
-            }
-          : prev,
-      );
     }
   };
 
@@ -318,11 +251,11 @@ function DonatePage() {
                 </div>
                 <div className="mt-6 mx-auto max-w-xs">
                   <a
-                    href={`upi://pay?pa=${UPI_ID}&pn=Sri%20Murugan%20Temple&tn=Donation`}
+                    href={`upi://pay?pa=${upiId}&pn=Sri%20Murugan%20Temple&tn=Donation`}
                     className="inline-block w-full rounded-2xl overflow-hidden hover:shadow-lg transition-all"
                   >
                     <img
-                      src={upiQr}
+                      src={qrSrc}
                       alt="UPI QR Code"
                       className="w-full h-auto"
                     />
@@ -331,7 +264,7 @@ function DonatePage() {
                 <div className="mt-5 text-center">
                   <div className="font-tamil-sans text-sm text-ink/70">UPI ID</div>
                   <div className="font-tamil-sans text-lg font-semibold text-ink mt-2">
-                    {UPI_ID}
+                    {upiId}
                   </div>
                 </div>
                 <div className="mt-4 grid grid-cols-4 gap-2 text-center">
@@ -349,7 +282,7 @@ function DonatePage() {
                   className="mt-6 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-gradient-sunset text-parchment font-tamil font-semibold shadow-brass hover:shadow-temple transition-all"
                 >
                   {copied ? <Check size={18} /> : <Copy size={18} />}
-                  {copied ? "🦚Copied..." : `UPI: ${UPI_ID}`}
+                  {copied ? "🦚Copied..." : `UPI: ${upiId}`}
                 </button>
               </div>
             </div>
@@ -583,21 +516,6 @@ function StatusMessage({ tone, message }) {
 }
 
 function SuccessPanel({ status, onAgain }) {
-  const pdfReady = status.pdfState === "ready";
-  const pdfFailed = status.pdfState === "failed";
-  const emailSent = status.emailState === "sent";
-  const emailFailed = status.emailState === "failed";
-
-  const mailtoHref = buildReceiptMailto({
-    name: status.donorName,
-    phone: status.donorPhone,
-    email: status.email,
-    amount: status.amount,
-    receiptId: status.receiptId,
-    issuedAt: status.issuedAt,
-    upiId: UPI_ID,
-  });
-
   return (
     <div className="text-center py-6">
       <div className="mx-auto w-16 h-16 rounded-full bg-gradient-sunset text-parchment flex items-center justify-center shadow-brass">
@@ -610,99 +528,20 @@ function SuccessPanel({ status, onAgain }) {
         {status.donorName ? `நன்றி, ${status.donorName}!` : "உங்கள் தானத்திற்கு நன்றி"}
       </h3>
       <p className="mt-3 font-tamil-sans text-sm text-ink/75 leading-relaxed max-w-md mx-auto">
-        உங்கள் தானம் நிர்வாகப் பலகையில் உடனடியாக பதிவாகியுள்ளது.{" "}
-        {emailSent
-          ? `PDF ரசீது ${status.email} முகவரிக்கு அனுப்பப்பட்டது.`
-          : "ரசீது தயாராகிறது / ஈ-மெயில் அனுப்பப்படுகிறது."}
+        உங்கள் தானம் நிர்வாகப் பலகையில் உடனடியாக பதிவாகியுள்ளது.
       </p>
       <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brass/40 bg-brass/10 font-display italic text-xs tracking-widest text-brass-deep">
         Receipt #{status.receiptId}
       </div>
-
-      <div className="mt-5 max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-tamil-sans">
-        <ProgressPill
-          label="PDF"
-          state={status.pdfState}
-          okText="தயார் · Ready"
-          pendingText="தயாராகிறது..."
-          failText={status.pdfError || "தோல்வி"}
-        />
-        <ProgressPill
-          label="EMAIL"
-          state={status.emailState === "sending" ? "preparing" : status.emailState}
-          okText="அனுப்பப்பட்டது · Sent"
-          pendingText="அனுப்பப்படுகிறது..."
-          failText={status.emailError || "தோல்வி"}
-        />
-      </div>
-
-      {emailFailed && pdfReady ? (
-        <p className="mt-3 font-tamil-sans text-xs text-brass-deep max-w-md mx-auto leading-relaxed">
-          ஈ-மெயில் சேவை இணைப்பு இல்லை. கீழே "PDF பதிவிறக்கம்" அல்லது "ஈ-மெயிலில் திறக்கவும்"
-          பொத்தானை அழுத்தவும்.
-        </p>
-      ) : null}
-      {pdfFailed ? (
-        <p className="mt-3 font-tamil-sans text-xs text-vermillion max-w-md mx-auto leading-relaxed">
-          PDF: {status.pdfError}. உங்கள் தானம் நிர்வாகப் பலகையில் (Donations tab) பாதுகாப்பாக பதிவாகியுள்ளது.
-        </p>
-      ) : null}
-
       <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-        <button
-          type="button"
-          disabled={!pdfReady}
-          onClick={() => pdfReady && downloadReceiptBlob(status.pdfBlob, status.pdfFilename)}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-2 border-brass-deep text-ink font-tamil font-semibold hover:bg-brass/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Download size={16} /> {pdfReady ? "ரசீதை பதிவிறக்கம்" : "தயாராகிறது..."}
-        </button>
-        <a
-          href={mailtoHref}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-brass/40 text-ink hover:bg-brass/10 transition-all font-tamil font-semibold"
-        >
-          <Mail size={16} /> ஈ-மெயிலில் திற
-        </a>
         <button
           type="button"
           onClick={onAgain}
           className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-sunset text-parchment font-tamil font-semibold shadow-brass hover:shadow-temple transition-all"
         >
-          <Loader2 size={16} className={status.emailState === "sending" ? "animate-spin" : "hidden"} />
           மற்றொரு தானம்
         </button>
       </div>
-    </div>
-  );
-}
-
-function ProgressPill({ label, state, okText, pendingText, failText }) {
-  let icon;
-  let tone;
-  let text;
-  if (state === "ready" || state === "sent") {
-    icon = <Check size={12} />;
-    tone = "bg-emerald-100 border-emerald-300 text-emerald-800";
-    text = okText;
-  } else if (state === "failed") {
-    icon = <AlertTriangle size={12} />;
-    tone = "bg-amber-100 border-amber-300 text-amber-800";
-    text = failText;
-  } else {
-    icon = <Loader2 size={12} className="animate-spin" />;
-    tone = "bg-brass/10 border-brass/40 text-brass-deep";
-    text = pendingText;
-  }
-  return (
-    <div
-      className={
-        "inline-flex items-center justify-center gap-2 rounded-full border px-3 py-1.5 " +
-        tone
-      }
-    >
-      {icon}
-      <span className="font-display italic text-[0.65rem] tracking-widest">{label}</span>
-      <span className="text-[0.7rem]">{text}</span>
     </div>
   );
 }

@@ -158,6 +158,12 @@ export const defaultContent = {
   // ---------------- Calendar notes ----------------
   // { "YYYY-MM-DD": "free-form Tamil/English note" }
   calendarNotes: {},
+
+  // ---------------- Payment / UPI settings ----------------
+  payment: {
+    upiId: "gokulsaravanan633@okicici",
+    upiQrImage: null, // null = use bundled Upi.jpeg asset
+  },
 };
 
 /* -------------------------------------------------------------------------- */

@@ -9,6 +9,7 @@ const RESEND_ENDPOINT = "https://api.resend.com/emails";
 
 const escapeHtml = (s = "") =>
   String(s)
+
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")

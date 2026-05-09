@@ -31,6 +31,7 @@ import {
   CalendarClock,
 } from "lucide-react";
 import logoImg from "@/assets/m12.jpeg";
+import upiQrDefault from "@/assets/Upi.jpeg";
 import kolam from "@/assets/kolam-ornament.png";
 import gopuram from "@/assets/temple-gopuram.jpg";
 import manuscript from "@/assets/temple-manuscript.jpg";
@@ -355,7 +356,7 @@ function AdminPage() {
         {activeTab === "images" && <ImagesTab draft={draft} update={update} />}
         {activeTab === "people" && <PeopleTab draft={draft} update={update} />}
         {activeTab === "notes" && <NotesTab draft={draft} update={update} />}
-        {activeTab === "donations" && <DonationsTab />}
+        {activeTab === "donations" && <DonationsTab draft={draft} update={update} />}
         {activeTab === "footer" && <FooterTab draft={draft} update={update} />}
         {activeTab === "account" && (
           <AccountTab credentials={credentials} updateCredentials={updateCredentials} />
@@ -1119,7 +1120,7 @@ function formatTimestamp(iso) {
   }
 }
 
-function DonationsTab() {
+function DonationsTab({ draft, update }) {
   const { entries, deleteEntry, clearAll } = useDonationLog();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -1223,6 +1224,38 @@ function DonationsTab() {
 
   return (
     <div className="space-y-5">
+      {/* UPI & Payment Settings */}
+      <SectionCard titleTamil="UPI & கட்டண அமைப்பு" titleEn="UPI & Payment Settings">
+        <p className="text-xs sm:text-sm font-tamil-sans text-ink/70 leading-relaxed">
+          தானம் பக்கத்தில் காட்டப்படும் UPI ID மற்றும் QR குறியீட்டை இங்கே மாற்றலாம்.
+          மாற்றங்களை சேமிக்க மேலே <strong className="text-vermillion">சேமி</strong> பொத்தானை அழுத்தவும்.{" "}
+          <span className="text-ink/50 font-display italic">
+            Edit the UPI ID and QR code shown on the donation page. Save using the Save button above.
+          </span>
+        </p>
+        <Field
+          labelTamil="UPI ID"
+          labelEn="UPI ID (e.g. name@bank)"
+          value={draft?.payment?.upiId ?? ""}
+          onChange={(v) => update(["payment", "upiId"], v)}
+          placeholder="yourname@okicici"
+        />
+        <div className="mt-2">
+          <div className="mb-2 flex flex-wrap items-baseline gap-2 font-tamil-sans text-sm font-semibold text-ink/80">
+            <span className="font-tamil">UPI QR குறியீடு</span>
+            <span className="text-ink/40 font-display italic text-xs">/ UPI QR Code Image</span>
+          </div>
+          <ImageSlot
+            labelTamil="QR படம்"
+            labelEn="QR Code"
+            current={draft?.payment?.upiQrImage ?? null}
+            defaultImg={upiQrDefault}
+            onChange={(v) => update(["payment", "upiQrImage"], v)}
+            onClear={() => update(["payment", "upiQrImage"], null)}
+          />
+        </div>
+      </SectionCard>
+
       {/* Stats strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard

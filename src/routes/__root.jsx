@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { ContentProvider } from "@/lib/content-store";
 import { AuthProvider } from "@/lib/admin-auth";
+import { DonationLogProvider } from "@/lib/donation-log";
 import { LogoutToast } from "@/components/LogoutToast";
 
 import appCss from "../styles.css?url";
@@ -67,7 +68,9 @@ function RootShell({ children }) {
       </head>
       <body>
         <ContentProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <DonationLogProvider>{children}</DonationLogProvider>
+          </AuthProvider>
         </ContentProvider>
         <Scripts />
       </body>
