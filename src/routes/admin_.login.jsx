@@ -7,16 +7,6 @@ import { useAuth } from "@/lib/admin-auth";
 import { useContent as useSiteContent, useImage } from "@/lib/content-store";
 
 export const Route = createFileRoute("/admin_/login")({
-  head: () => ({
-    meta: [
-      { title: "நிர்வாக நுழைவு — Admin Login" },
-      {
-        name: "description",
-        content:
-          "ஆலய இணைய நிர்வாக நுழைவு பக்கம். Admin login for the temple website content panel.",
-      },
-    ],
-  }),
   component: AdminLoginPage,
 });
 
@@ -37,11 +27,11 @@ function AdminLoginPage() {
     if (isAuthed) navigate({ to: "/admin" });
   }, [isAuthed, navigate]);
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setBusy(true);
-    const result = login(userId.trim(), password);
+    const result = await login(userId.trim(), password);
     setBusy(false);
     if (result.ok) {
       navigate({ to: "/admin" });
@@ -107,16 +97,16 @@ function AdminLoginPage() {
             <label className="block">
               <span className="flex items-center gap-2 font-tamil-sans text-sm font-semibold text-ink/80">
                 <User size={14} className="text-brass-deep" />
-                பயனர் பெயர் <span className="text-ink/40 font-display italic">/ User ID</span>
+                மின்னஞ்சல் <span className="text-ink/40 font-display italic">/ Email</span>
               </span>
               <input
-                type="text"
-                autoComplete="username"
+                type="email"
+                autoComplete="email"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 required
                 className="mt-1.5 w-full rounded-xl border border-brass/40 bg-parchment/80 px-4 py-2.5 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-vermillion/40 focus:border-vermillion transition"
-                placeholder="உங்கள் பயனர் பெயர்"
+                placeholder="admin@yourtemple.com"
               />
             </label>
 

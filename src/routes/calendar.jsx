@@ -21,16 +21,6 @@ import muruganVel from "@/assets/murugan-vel.png";
 import { useContent, toLocalDateKey } from "@/lib/content-store";
 
 export const Route = createFileRoute("/calendar")({
-  head: () => ({
-    meta: [
-      { title: "தமிழ் நாட்காட்டி — Tamil Calendar | ஸ்ரீ ஆலயம்" },
-      {
-        name: "description",
-        content:
-          "தமிழ் மாதங்கள், திதி, நட்சத்திரம், விழாக்கள் மற்றும் சுப தினங்கள் கொண்ட தமிழ் நாட்காட்டி.",
-      },
-    ],
-  }),
   component: CalendarPage,
 });
 

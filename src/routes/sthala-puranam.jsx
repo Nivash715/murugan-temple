@@ -9,21 +9,6 @@ import templeNightNew from "@/assets/8.jpeg";
 import { Flame, Heart, Moon } from "lucide-react";
 
 export const Route = createFileRoute("/sthala-puranam")({
-  head: () => ({
-    meta: [
-      { title: "ஸ்தல புராணம் — Sthala Puranam" },
-      {
-        name: "description",
-        content: "ஆலயத்தின் ஆன்மீக முக்கியத்துவம், புராணக் கதைகள் மற்றும் தெய்வத்தின் சிறப்புகள்.",
-      },
-      { property: "og:title", content: "ஸ்தல புராணம் — Sthala Puranam" },
-      {
-        property: "og:description",
-        content: "The sacred lore, mythological stories, and divine significance of the temple.",
-      },
-      { property: "og:image", content: manuscript },
-    ],
-  }),
   component: SthalaPuranam,
 });
 

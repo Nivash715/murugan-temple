@@ -43,7 +43,7 @@ function buildEmailHtml({ name, phone, email, amount, receiptId, issuedAt, upiId
     amount: escapeHtml(formatINR(amount)),
     receiptId: escapeHtml(receiptId || "—"),
     issuedAt: escapeHtml(issuedAt || ""),
-    upiId: escapeHtml(upiId || "srialayam@upi"),
+    upiId: escapeHtml(upiId || "gokulsaravanan633@okicici"),
   };
 
   return `<!doctype html>
@@ -173,7 +173,7 @@ function buildEmailText({ name, phone, email, amount, receiptId, issuedAt, upiId
     `Phone      : ${phone || "—"}`,
     `Email      : ${email || "—"}`,
     `Amount     : ${formatINR(amount)}`,
-    `Mode       : UPI · ${upiId || "srialayam@upi"}`,
+    `Mode       : UPI · ${upiId || "gokulsaravanan633@okicici"}`,
     `Receipt #  : ${receiptId || "—"}`,
     `Issued     : ${issuedAt || ""}`,
     "",

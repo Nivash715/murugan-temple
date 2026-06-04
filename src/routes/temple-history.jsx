@@ -7,21 +7,6 @@ import deityPhoto from "@/assets/2.jpeg";
 import { Calendar, Star, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/temple-history")({
-  head: () => ({
-    meta: [
-      { title: " ஆலய வரலாறு — Temple History" },
-      {
-        name: "description",
-        content: "ஆலயத்தின் வரலாறு, சிறப்புகள் மற்றும் காலந்தோறும் நிகழ்ந்த முக்கிய நிகழ்வுகள்.",
-      },
-      { property: "og:title", content: "ஆலய வரலாறு — Temple History" },
-      {
-        property: "og:description",
-        content: "The chronicled history, milestones, and legacy of the temple.",
-      },
-      { property: "og:image", content: gopuram },
-    ],
-  }),
   component: TempleHistory,
 });
 

@@ -7,17 +7,6 @@ import { Phone, User } from "lucide-react";
 import { useContent } from "@/lib/content-store";
 
 export const Route = createFileRoute("/priest")({
-  head: () => ({
-    meta: [
-      { title: "அர்ச்சகர் & நிர்வாகம் — Priest & Administration" },
-      {
-        name: "description",
-        content: "ஆலய அர்ச்சகர், தொடர்பு விவரம் மற்றும் நிர்வாக குழு பற்றிய தகவல்.",
-      },
-      { property: "og:title", content: "Priest & Administration" },
-      { property: "og:description", content: "Meet the priest and the temple management team." },
-    ],
-  }),
   component: PriestPage,
 });
 

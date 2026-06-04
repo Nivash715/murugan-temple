@@ -8,167 +8,167 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as TempleStructureRouteImport } from './routes/temple-structure'
-import { Route as TempleHistoryRouteImport } from './routes/temple-history'
-import { Route as SthalaPuranamRouteImport } from './routes/sthala-puranam'
-import { Route as PriestRouteImport } from './routes/priest'
-import { Route as FestivalsRouteImport } from './routes/festivals'
-import { Route as EventsRouteImport } from './routes/events'
-import { Route as DonateRouteImport } from './routes/donate'
-import { Route as DeitiesRouteImport } from './routes/deities'
-import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminLoginRouteImport } from './routes/admin_.login'
+import { Route as rootRouteImport } from "./routes/__root"
+import { Route as TempleStructureRouteImport } from "./routes/temple-structure"
+import { Route as TempleHistoryRouteImport } from "./routes/temple-history"
+import { Route as SthalaPuranamRouteImport } from "./routes/sthala-puranam"
+import { Route as PriestRouteImport } from "./routes/priest"
+import { Route as FestivalsRouteImport } from "./routes/festivals"
+import { Route as EventsRouteImport } from "./routes/events"
+import { Route as DonateRouteImport } from "./routes/donate"
+import { Route as DeitiesRouteImport } from "./routes/deities"
+import { Route as CalendarRouteImport } from "./routes/calendar"
+import { Route as AdminRouteImport } from "./routes/admin"
+import { Route as IndexRouteImport } from "./routes/index"
+import { Route as AdminLoginRouteImport } from "./routes/admin_.login"
 
 const TempleStructureRoute = TempleStructureRouteImport.update({
-  id: '/temple-structure',
-  path: '/temple-structure',
+  id: "/temple-structure",
+  path: "/temple-structure",
   getParentRoute: () => rootRouteImport,
 } as any)
 const TempleHistoryRoute = TempleHistoryRouteImport.update({
-  id: '/temple-history',
-  path: '/temple-history',
+  id: "/temple-history",
+  path: "/temple-history",
   getParentRoute: () => rootRouteImport,
 } as any)
 const SthalaPuranamRoute = SthalaPuranamRouteImport.update({
-  id: '/sthala-puranam',
-  path: '/sthala-puranam',
+  id: "/sthala-puranam",
+  path: "/sthala-puranam",
   getParentRoute: () => rootRouteImport,
 } as any)
 const PriestRoute = PriestRouteImport.update({
-  id: '/priest',
-  path: '/priest',
+  id: "/priest",
+  path: "/priest",
   getParentRoute: () => rootRouteImport,
 } as any)
 const FestivalsRoute = FestivalsRouteImport.update({
-  id: '/festivals',
-  path: '/festivals',
+  id: "/festivals",
+  path: "/festivals",
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsRoute = EventsRouteImport.update({
-  id: '/events',
-  path: '/events',
+  id: "/events",
+  path: "/events",
   getParentRoute: () => rootRouteImport,
 } as any)
 const DonateRoute = DonateRouteImport.update({
-  id: '/donate',
-  path: '/donate',
+  id: "/donate",
+  path: "/donate",
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeitiesRoute = DeitiesRouteImport.update({
-  id: '/deities',
-  path: '/deities',
+  id: "/deities",
+  path: "/deities",
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarRoute = CalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
+  id: "/calendar",
+  path: "/calendar",
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+  id: "/admin",
+  path: "/admin",
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin_/login',
-  path: '/admin/login',
+  id: "/admin_/login",
+  path: "/admin/login",
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/calendar': typeof CalendarRoute
-  '/deities': typeof DeitiesRoute
-  '/donate': typeof DonateRoute
-  '/events': typeof EventsRoute
-  '/festivals': typeof FestivalsRoute
-  '/priest': typeof PriestRoute
-  '/sthala-puranam': typeof SthalaPuranamRoute
-  '/temple-history': typeof TempleHistoryRoute
-  '/temple-structure': typeof TempleStructureRoute
-  '/admin/login': typeof AdminLoginRoute
+  "/": typeof IndexRoute
+  "/admin": typeof AdminRoute
+  "/calendar": typeof CalendarRoute
+  "/deities": typeof DeitiesRoute
+  "/donate": typeof DonateRoute
+  "/events": typeof EventsRoute
+  "/festivals": typeof FestivalsRoute
+  "/priest": typeof PriestRoute
+  "/sthala-puranam": typeof SthalaPuranamRoute
+  "/temple-history": typeof TempleHistoryRoute
+  "/temple-structure": typeof TempleStructureRoute
+  "/admin/login": typeof AdminLoginRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/calendar': typeof CalendarRoute
-  '/deities': typeof DeitiesRoute
-  '/donate': typeof DonateRoute
-  '/events': typeof EventsRoute
-  '/festivals': typeof FestivalsRoute
-  '/priest': typeof PriestRoute
-  '/sthala-puranam': typeof SthalaPuranamRoute
-  '/temple-history': typeof TempleHistoryRoute
-  '/temple-structure': typeof TempleStructureRoute
-  '/admin/login': typeof AdminLoginRoute
+  "/": typeof IndexRoute
+  "/admin": typeof AdminRoute
+  "/calendar": typeof CalendarRoute
+  "/deities": typeof DeitiesRoute
+  "/donate": typeof DonateRoute
+  "/events": typeof EventsRoute
+  "/festivals": typeof FestivalsRoute
+  "/priest": typeof PriestRoute
+  "/sthala-puranam": typeof SthalaPuranamRoute
+  "/temple-history": typeof TempleHistoryRoute
+  "/temple-structure": typeof TempleStructureRoute
+  "/admin/login": typeof AdminLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/calendar': typeof CalendarRoute
-  '/deities': typeof DeitiesRoute
-  '/donate': typeof DonateRoute
-  '/events': typeof EventsRoute
-  '/festivals': typeof FestivalsRoute
-  '/priest': typeof PriestRoute
-  '/sthala-puranam': typeof SthalaPuranamRoute
-  '/temple-history': typeof TempleHistoryRoute
-  '/temple-structure': typeof TempleStructureRoute
-  '/admin_/login': typeof AdminLoginRoute
+  "/": typeof IndexRoute
+  "/admin": typeof AdminRoute
+  "/calendar": typeof CalendarRoute
+  "/deities": typeof DeitiesRoute
+  "/donate": typeof DonateRoute
+  "/events": typeof EventsRoute
+  "/festivals": typeof FestivalsRoute
+  "/priest": typeof PriestRoute
+  "/sthala-puranam": typeof SthalaPuranamRoute
+  "/temple-history": typeof TempleHistoryRoute
+  "/temple-structure": typeof TempleStructureRoute
+  "/admin_/login": typeof AdminLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/admin'
-    | '/calendar'
-    | '/deities'
-    | '/donate'
-    | '/events'
-    | '/festivals'
-    | '/priest'
-    | '/sthala-puranam'
-    | '/temple-history'
-    | '/temple-structure'
-    | '/admin/login'
+    | "/"
+    | "/admin"
+    | "/calendar"
+    | "/deities"
+    | "/donate"
+    | "/events"
+    | "/festivals"
+    | "/priest"
+    | "/sthala-puranam"
+    | "/temple-history"
+    | "/temple-structure"
+    | "/admin/login"
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
-    | '/admin'
-    | '/calendar'
-    | '/deities'
-    | '/donate'
-    | '/events'
-    | '/festivals'
-    | '/priest'
-    | '/sthala-puranam'
-    | '/temple-history'
-    | '/temple-structure'
-    | '/admin/login'
+    | "/"
+    | "/admin"
+    | "/calendar"
+    | "/deities"
+    | "/donate"
+    | "/events"
+    | "/festivals"
+    | "/priest"
+    | "/sthala-puranam"
+    | "/temple-history"
+    | "/temple-structure"
+    | "/admin/login"
   id:
-    | '__root__'
-    | '/'
-    | '/admin'
-    | '/calendar'
-    | '/deities'
-    | '/donate'
-    | '/events'
-    | '/festivals'
-    | '/priest'
-    | '/sthala-puranam'
-    | '/temple-history'
-    | '/temple-structure'
-    | '/admin_/login'
+    | "__root__"
+    | "/"
+    | "/admin"
+    | "/calendar"
+    | "/deities"
+    | "/donate"
+    | "/events"
+    | "/festivals"
+    | "/priest"
+    | "/sthala-puranam"
+    | "/temple-history"
+    | "/temple-structure"
+    | "/admin_/login"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -186,89 +186,89 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/temple-structure': {
-      id: '/temple-structure'
-      path: '/temple-structure'
-      fullPath: '/temple-structure'
+    "/temple-structure": {
+      id: "/temple-structure"
+      path: "/temple-structure"
+      fullPath: "/temple-structure"
       preLoaderRoute: typeof TempleStructureRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/temple-history': {
-      id: '/temple-history'
-      path: '/temple-history'
-      fullPath: '/temple-history'
+    "/temple-history": {
+      id: "/temple-history"
+      path: "/temple-history"
+      fullPath: "/temple-history"
       preLoaderRoute: typeof TempleHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sthala-puranam': {
-      id: '/sthala-puranam'
-      path: '/sthala-puranam'
-      fullPath: '/sthala-puranam'
+    "/sthala-puranam": {
+      id: "/sthala-puranam"
+      path: "/sthala-puranam"
+      fullPath: "/sthala-puranam"
       preLoaderRoute: typeof SthalaPuranamRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/priest': {
-      id: '/priest'
-      path: '/priest'
-      fullPath: '/priest'
+    "/priest": {
+      id: "/priest"
+      path: "/priest"
+      fullPath: "/priest"
       preLoaderRoute: typeof PriestRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/festivals': {
-      id: '/festivals'
-      path: '/festivals'
-      fullPath: '/festivals'
+    "/festivals": {
+      id: "/festivals"
+      path: "/festivals"
+      fullPath: "/festivals"
       preLoaderRoute: typeof FestivalsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/events': {
-      id: '/events'
-      path: '/events'
-      fullPath: '/events'
+    "/events": {
+      id: "/events"
+      path: "/events"
+      fullPath: "/events"
       preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/donate': {
-      id: '/donate'
-      path: '/donate'
-      fullPath: '/donate'
+    "/donate": {
+      id: "/donate"
+      path: "/donate"
+      fullPath: "/donate"
       preLoaderRoute: typeof DonateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/deities': {
-      id: '/deities'
-      path: '/deities'
-      fullPath: '/deities'
+    "/deities": {
+      id: "/deities"
+      path: "/deities"
+      fullPath: "/deities"
       preLoaderRoute: typeof DeitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/calendar': {
-      id: '/calendar'
-      path: '/calendar'
-      fullPath: '/calendar'
+    "/calendar": {
+      id: "/calendar"
+      path: "/calendar"
+      fullPath: "/calendar"
       preLoaderRoute: typeof CalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
+    "/admin": {
+      id: "/admin"
+      path: "/admin"
+      fullPath: "/admin"
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
+    "/": {
+      id: "/"
+      path: "/"
+      fullPath: "/"
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin_/login': {
-      id: '/admin_/login'
-      path: '/admin/login'
-      fullPath: '/admin/login'
+    "/admin_/login": {
+      id: "/admin_/login"
+      path: "/admin/login"
+      fullPath: "/admin/login"
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -292,12 +292,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.jsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

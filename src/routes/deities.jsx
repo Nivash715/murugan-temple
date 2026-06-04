@@ -12,20 +12,6 @@ import vishnu from "@/assets/perumal.jpg";
 import { Sparkles, Clock, CalendarHeart, Flame } from "lucide-react";
 
 export const Route = createFileRoute("/deities")({
-  head: () => ({
-    meta: [
-      { title: "முக்கிய தெய்வங்கள் — Main Deities" },
-      {
-        name: "description",
-        content: "ஆலயத்தில் அமைந்துள்ள முக்கிய தெய்வங்களின் வரலாறு, அருள் மற்றும் பூஜை நேரங்கள்.",
-      },
-      { property: "og:title", content: "Main Deities · முக்கிய தெய்வங்கள்" },
-      {
-        property: "og:description",
-        content: "Ganesha, Murugan, Amman, Shiva, Vishnu — sacred deities of the temple.",
-      },
-    ],
-  }),
   component: DeitiesPage,
 });
 
@@ -62,7 +48,7 @@ const deities = [
   {
     id: "valliyammai",
     tamil: "ஸ்ரீ வள்ளியம்மை",
-    en: "valliyammai",
+    en: "Valliyammai",
     image: valliyammai,
     description:
       "வள்ளியம்மை என்பது முருகப்பெருமானின் இரண்டாம் துணைவியார் ஆகும்.முருகன் வேடன் வடிவில் வந்து வள்ளியை மணந்த கதை தமிழர் மரபில் மிகவும் புகழ்பெற்றதாகும்.",

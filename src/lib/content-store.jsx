@@ -1,4 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { collection, doc, getDocs, onSnapshot, setDoc, writeBatch } from "firebase/firestore";
+import { db } from "./firebase";
 
 /* -------------------------------------------------------------------------- */
 /*  DEFAULT EDITABLE CONTENT                                                  */
@@ -167,10 +169,21 @@ export const defaultContent = {
 };
 
 /* -------------------------------------------------------------------------- */
-/*  STORE                                                                     */
+/*  STORE — backed by Firebase Firestore                                      */
+/* -------------------------------------------------------------------------- */
+/*  Text content → single document:  "temple" / "content"                    */
+/*  Images       → one doc each:     "templeImages" / "<flattened-key>"      */
+/*                                                                            */
+/*  Image keys use "__" as separator for nested paths:                        */
+/*    images.logo            → templeImages/logo                             */
+/*    images.homeCards.events → templeImages/homeCards__events               */
+/*                                                                            */
+/*  This keeps every Firestore document well under the 1 MB size limit.      */
 /* -------------------------------------------------------------------------- */
 
-const STORAGE_KEY = "temple-content-v1";
+const CONTENT_DOC      = doc(db, "temple", "content");
+const IMAGES_COLLECTION = collection(db, "templeImages");
+
 const ContentContext = createContext(null);
 
 function deepMerge(target, source) {
@@ -183,52 +196,131 @@ function deepMerge(target, source) {
   return out;
 }
 
-function loadFromStorage() {
-  if (typeof window === "undefined") return defaultContent;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultContent;
-    const stored = JSON.parse(raw);
-    return deepMerge(defaultContent, stored);
-  } catch {
-    return defaultContent;
+/**
+ * Flatten a nested images object into Firestore batch operations.
+ * { homeCards: { events: "data:..." } } → set("homeCards__events", { dataUrl })
+ */
+function batchImages(imagesObj, batch, prefix = "") {
+  for (const [key, val] of Object.entries(imagesObj)) {
+    const docId = prefix ? `${prefix}__${key}` : key;
+    if (val === null) {
+      // null means "use default asset" — delete any override so the default shows
+      batch.delete(doc(db, "templeImages", docId));
+    } else if (typeof val === "string") {
+      // data URL from the image compressor
+      batch.set(doc(db, "templeImages", docId), { dataUrl: val });
+    } else if (typeof val === "object") {
+      batchImages(val, batch, docId);
+    }
   }
 }
 
-export function ContentProvider({ children }) {
-  const [content, setContentState] = useState(defaultContent);
+/**
+ * Rebuild the nested images object from a Firestore collection snapshot.
+ * "homeCards__events" → images.homeCards.events
+ */
+function buildImagesFromSnapshot(snapshot) {
+  const out = {};
+  snapshot.forEach((docSnap) => {
+    const parts = docSnap.id.split("__");
+    let node = out;
+    for (let i = 0; i < parts.length - 1; i++) {
+      node[parts[i]] = node[parts[i]] || {};
+      node = node[parts[i]];
+    }
+    node[parts[parts.length - 1]] = docSnap.data().dataUrl ?? null;
+  });
+  return out;
+}
 
-  // hydrate from localStorage on the client only
+export function ContentProvider({ children }) {
+  const [textContent, setTextContent] = useState(defaultContent);
+  const [imagesOverride, setImagesOverride] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  // Real-time listener: text content
   useEffect(() => {
-    setContentState(loadFromStorage());
-    const onStorage = (e) => {
-      if (e.key === STORAGE_KEY) setContentState(loadFromStorage());
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    const unsub = onSnapshot(
+      CONTENT_DOC,
+      (snap) => {
+        if (snap.exists()) {
+          setTextContent((prev) => deepMerge(prev, snap.data()));
+        }
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Content snapshot error:", err);
+        setLoading(false);
+      },
+    );
+    return unsub;
   }, []);
 
-  const setContent = useCallback((next) => {
-    setContentState(next);
+  // Real-time listener: images collection
+  useEffect(() => {
+    const unsub = onSnapshot(
+      IMAGES_COLLECTION,
+      (snapshot) => {
+        setImagesOverride(buildImagesFromSnapshot(snapshot));
+      },
+      (err) => console.error("Images snapshot error:", err),
+    );
+    return unsub;
+  }, []);
+
+  // Merge text + image overrides into the final content object
+  const content = useMemo(
+    () => ({
+      ...textContent,
+      images: deepMerge(defaultContent.images, imagesOverride),
+    }),
+    [textContent, imagesOverride],
+  );
+
+  /**
+   * Save the full content draft.
+   * Text goes to "temple/content"; images go to "templeImages/{key}".
+   */
+  const setContent = useCallback(async (next) => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      /* ignore quota errors */
+      const { images, ...textOnly } = next;
+
+      // Save text content
+      await setDoc(CONTENT_DOC, textOnly);
+
+      // Save images in a single batched write
+      if (images) {
+        const batch = writeBatch(db);
+        batchImages(images, batch);
+        await batch.commit();
+      }
+    } catch (err) {
+      console.error("Failed to save content:", err);
     }
   }, []);
 
-  const resetContent = useCallback(() => {
-    setContentState(defaultContent);
+  /**
+   * Restore all built-in defaults and clear every Firestore override.
+   */
+  const resetContent = useCallback(async () => {
     try {
-      window.localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      /* ignore */
+      const { images: _img, ...textOnly } = defaultContent;
+      await setDoc(CONTENT_DOC, textOnly);
+
+      const imgSnap = await getDocs(IMAGES_COLLECTION);
+      if (!imgSnap.empty) {
+        const batch = writeBatch(db);
+        imgSnap.forEach((d) => batch.delete(d.ref));
+        await batch.commit();
+      }
+    } catch (err) {
+      console.error("Failed to reset content:", err);
     }
   }, []);
 
   const value = useMemo(
-    () => ({ content, setContent, resetContent }),
-    [content, setContent, resetContent],
+    () => ({ content, setContent, resetContent, loading }),
+    [content, setContent, resetContent, loading],
   );
 
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
@@ -237,8 +329,12 @@ export function ContentProvider({ children }) {
 export function useContent() {
   const ctx = useContext(ContentContext);
   if (!ctx) {
-    // Allow direct calls outside the provider (e.g. SSR fallback)
-    return { content: defaultContent, setContent: () => {}, resetContent: () => {} };
+    return {
+      content: defaultContent,
+      setContent: async () => {},
+      resetContent: async () => {},
+      loading: false,
+    };
   }
   return ctx;
 }

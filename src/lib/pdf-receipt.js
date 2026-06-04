@@ -1,11 +1,13 @@
 /* -------------------------------------------------------------------------- */
-/*  Donation Receipt — themed PDF generator                                   */
+/*  Donation Receipt — Tamil-styled PDF generator                             */
 /*                                                                            */
-/*  Loads jsPDF on demand from a CDN (no extra npm dep needed) and builds a   */
-/*  receipt styled with the temple's brass / vermillion / parchment palette.  */
+/*  Uses html2canvas + jsPDF to render the receipt with full Tamil text       */
+/*  support, matching the official Tamil receipt design.                      */
 /*                                                                            */
 /*  Usage:                                                                    */
-/*    const { dataUrl, base64, filename } = await generateReceiptPdf({...});  */
+/*    const { dataUrl, base64, blob, filename } = await generateReceiptPdf({  */
+/*      name, phone, email, amount, upiId                                     */
+/*    });                                                                     */
 /* -------------------------------------------------------------------------- */
 
 const JSPDF_CDN_URLS = [
@@ -13,78 +15,52 @@ const JSPDF_CDN_URLS = [
   "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
   "https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js",
 ];
+
+const HTML2CANVAS_CDN_URLS = [
+  "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+  "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",
+];
+
 const CDN_TIMEOUT_MS = 15000;
 
-/* Theme colours pulled from src/styles.css (oklch converted to RGB) */
-const THEME = {
-  parchment: [248, 244, 233], // soft cream background
-  ink: [38, 28, 22], // deep brown ink
-  brass: [196, 152, 78], // brass gold
-  brassDeep: [148, 110, 56],
-  vermillion: [176, 48, 32], // kumkumam red
-  shadow: [220, 200, 170],
-};
-
 let jsPdfPromise = null;
+let html2canvasPromise = null;
 
-/**
- * Load jsPDF from a list of CDNs, falling back if any individual host fails.
- * Always resolves or rejects within `CDN_TIMEOUT_MS` so the form never freezes
- * waiting for a hung script load.
- */
-function loadJsPdf() {
-  if (typeof window === "undefined") {
+/* ── CDN loader helper ─────────────────────────────────────────────────── */
+
+function loadScript(urls, globalKey) {
+  if (typeof window === "undefined")
     return Promise.reject(new Error("PDF generation requires a browser"));
-  }
-  if (window.jspdf?.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
-  if (jsPdfPromise) return jsPdfPromise;
 
-  const promise = new Promise((resolve, reject) => {
+  // Already loaded
+  const already = globalKey.split(".").reduce((o, k) => o?.[k], window);
+  if (already) return Promise.resolve(already);
+
+  return new Promise((resolve, reject) => {
     let done = false;
-    const finishOk = (val) => {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      resolve(val);
-    };
-    const finishErr = (err) => {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      reject(err);
-    };
+    const finish = (val) => { if (!done) { done = true; clearTimeout(timer); resolve(val); } };
+    const fail   = (err) => { if (!done) { done = true; clearTimeout(timer); reject(err); } };
 
     const timer = setTimeout(
-      () => finishErr(new Error("jsPDF CDN load timed out — check your internet connection")),
+      () => fail(new Error(`CDN load timed out for ${globalKey}`)),
       CDN_TIMEOUT_MS,
     );
 
     const tryUrl = (idx) => {
       if (done) return;
-      if (window.jspdf?.jsPDF) return finishOk(window.jspdf.jsPDF);
-      if (idx >= JSPDF_CDN_URLS.length) {
-        return finishErr(new Error("jsPDF could not be loaded from any CDN"));
-      }
-      const url = JSPDF_CDN_URLS[idx];
-      const existing = document.querySelector(`script[data-jspdf-src="${url}"]`);
+      const check = globalKey.split(".").reduce((o, k) => o?.[k], window);
+      if (check) return finish(check);
+      if (idx >= urls.length) return fail(new Error(`Could not load ${globalKey} from any CDN`));
+
+      const url = urls[idx];
+      const existing = document.querySelector(`script[data-cdnlib="${url}"]`);
       if (existing) {
-        // Poll for the global since the load event may have already fired.
         const poll = setInterval(() => {
-          if (done) {
-            clearInterval(poll);
-            return;
-          }
-          if (window.jspdf?.jsPDF) {
-            clearInterval(poll);
-            finishOk(window.jspdf.jsPDF);
-          }
+          if (done) { clearInterval(poll); return; }
+          const val = globalKey.split(".").reduce((o, k) => o?.[k], window);
+          if (val) { clearInterval(poll); finish(val); }
         }, 100);
-        // Stop polling after a short window and try the next CDN.
-        setTimeout(() => {
-          if (done) return;
-          clearInterval(poll);
-          tryUrl(idx + 1);
-        }, 4000);
+        setTimeout(() => { if (!done) { clearInterval(poll); tryUrl(idx + 1); } }, 4000);
         return;
       }
 
@@ -92,10 +68,10 @@ function loadJsPdf() {
       script.src = url;
       script.async = true;
       script.crossOrigin = "anonymous";
-      script.dataset.jspdfSrc = url;
+      script.dataset.cdnlib = url;
       script.onload = () => {
-        if (window.jspdf?.jsPDF) finishOk(window.jspdf.jsPDF);
-        else tryUrl(idx + 1);
+        const val = globalKey.split(".").reduce((o, k) => o?.[k], window);
+        if (val) finish(val); else tryUrl(idx + 1);
       };
       script.onerror = () => tryUrl(idx + 1);
       document.head.appendChild(script);
@@ -103,41 +79,32 @@ function loadJsPdf() {
 
     tryUrl(0);
   });
+}
 
-  jsPdfPromise = promise;
-  // Clear cached promise on rejection so a future submit can retry the load.
-  promise.catch(() => {
-    jsPdfPromise = null;
-  });
-  return promise;
+function loadJsPdf() {
+  if (jsPdfPromise) return jsPdfPromise;
+  jsPdfPromise = loadScript(JSPDF_CDN_URLS, "jspdf.jsPDF");
+  jsPdfPromise.catch(() => { jsPdfPromise = null; });
+  return jsPdfPromise;
+}
+
+function loadHtml2Canvas() {
+  if (html2canvasPromise) return html2canvasPromise;
+  html2canvasPromise = loadScript(HTML2CANVAS_CDN_URLS, "html2canvas");
+  html2canvasPromise.catch(() => { html2canvasPromise = null; });
+  return html2canvasPromise;
 }
 
 /**
- * Eagerly start fetching jsPDF in the background so it's ready by the time
- * the donor clicks "Submit". Safe to call from any component's `useEffect`.
+ * Eagerly start fetching both libraries in the background so they are ready
+ * by the time the donor clicks "Submit".
  */
 export function preloadJsPdf() {
-  loadJsPdf().catch(() => {
-    /* swallow — actual users see the real error on submit */
-  });
+  loadJsPdf().catch(() => {});
+  loadHtml2Canvas().catch(() => {});
 }
 
-function setColor(doc, fn, [r, g, b]) {
-  doc[fn](r, g, b);
-}
-
-function formatINR(amount) {
-  const value = Number(amount) || 0;
-  try {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `₹${value}`;
-  }
-}
+/* ── Helpers ───────────────────────────────────────────────────────────── */
 
 function makeReceiptId() {
   const now = new Date();
@@ -163,17 +130,283 @@ function formatDate(date = new Date()) {
   }
 }
 
+/* ── Tamil receipt HTML builder — "Sacred Gold" design ────────────────── */
+
+function buildReceiptHTML({ name, phone, email, amount, upiId, id, issuedAt }) {
+  const amtStr     = String(amount ?? "—");
+  const donorName  = (name  || "பக்தர்").trim();
+  const donorPhone = (phone || "—").trim();
+  const donorEmail = (email || "—").trim();
+
+  /*
+   * Detail card helper.
+   * Each card = [coloured accent strip | content column]
+   * Content column has:
+   *   • English label  — Cormorant Garamond italic, uppercase, small, gold
+   *   • Tamil label    — Noto Sans Tamil, smaller, muted gold
+   *   • Value          — Noto Sans Tamil bold (or custom style), dark
+   *
+   * Using a sidebar strip + overflow:hidden instead of border-left so
+   * border-radius renders perfectly on both sides.
+   */
+  const card = ({ accent, bg = "#ffffff", enLabel, taLabel, value, valStyle = "" }) => `
+    <div style="display:flex;flex:1;border-radius:8px;overflow:hidden;border:1px solid #ddc98a;">
+      <div style="width:4px;flex-shrink:0;background:${accent};"></div>
+      <div style="flex:1;background:${bg};padding:11px 14px;
+                  display:flex;flex-direction:column;justify-content:flex-start;">
+        <span style="display:block;font-family:'Cormorant Garamond',Georgia,serif;
+                     font-style:italic;font-size:9px;font-weight:600;
+                     color:#7a5c1e;letter-spacing:0.07em;text-transform:uppercase;
+                     line-height:1.3;margin-bottom:2px;">${enLabel}</span>
+        <span style="display:block;font-family:'Noto Sans Tamil',sans-serif;
+                     font-size:8.5px;color:#a07832;line-height:1.4;
+                     margin-bottom:6px;">${taLabel}</span>
+        <span style="display:block;${valStyle ||
+          "font-family:'Noto Sans Tamil',sans-serif;font-size:13px;font-weight:700;color:#1a1208;line-height:1.4;"
+        }">${value}</span>
+      </div>
+    </div>`;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Serif+Tamil:wght@700&display=swap" rel="stylesheet"/>
+  <style>* { box-sizing:border-box; margin:0; padding:0; } body { background:transparent; }</style>
+</head>
+<body>
+<div id="receipt-root" style="
+  width:595px; background:#f9f4e8;
+  font-family:'Noto Sans Tamil',sans-serif;
+  border:2px solid #c4984e;
+">
+
+  <!-- ══ HEADER ══════════════════════════════════════════════════════════ -->
+  <div style="background:linear-gradient(135deg,#6B0E0A 0%,#8B1A14 55%,#9e2215 100%);
+              padding:26px 30px 20px; text-align:center;
+              position:relative; overflow:hidden;">
+
+    <!-- decorative rings -->
+    <div style="position:absolute;top:-28px;left:-28px;width:110px;height:110px;
+                border-radius:50%;border:1px solid rgba(196,152,78,0.25);"></div>
+    <div style="position:absolute;bottom:-24px;right:-24px;width:120px;height:120px;
+                border-radius:50%;border:1px solid rgba(196,152,78,0.22);"></div>
+
+    <!-- OM -->
+    <div style="font-size:20px;color:rgba(245,213,128,0.85);margin-bottom:8px;
+                font-family:serif;">ॐ</div>
+
+    <!-- Temple name — Noto Serif Tamil, white, large -->
+    <div style="font-family:'Noto Serif Tamil',serif;font-size:26px;font-weight:700;
+                color:#ffffff;letter-spacing:0.02em;line-height:1.4;">
+      ஸ்ரீ சுப்பிரமணியர் ஆலயம்
+    </div>
+
+    <!-- Address — Noto Sans Tamil, gold-yellow, small -->
+    <div style="font-family:'Noto Sans Tamil',sans-serif;font-size:10px;
+                color:#f0cc70;margin-top:5px;letter-spacing:0.03em;line-height:1.5;">
+      இனாம்காரியந்தல், திருவண்ணாமலை மாவட்டம். 606604
+    </div>
+
+    <!-- thin gold rule -->
+    <div style="margin:14px auto 12px;height:1px;width:60%;
+                background:linear-gradient(90deg,transparent,rgba(196,152,78,0.6),transparent);"></div>
+
+    <!-- Donation Receipt — Cormorant italic, spaced, gold -->
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+                font-size:11px;color:#f0cc70;letter-spacing:0.35em;text-transform:uppercase;">
+      Donation Receipt
+    </div>
+
+    <!-- நன்கொடை ரசீது — Noto Serif Tamil, parchment -->
+    <div style="font-family:'Noto Serif Tamil',serif;font-size:14px;font-weight:700;
+                color:#fdf0d8;margin-top:4px;letter-spacing:0.03em;">
+      நன்கொடை ரசீது
+    </div>
+  </div>
+
+  <!-- ══ META STRIP ═══════════════════════════════════════════════════════ -->
+  <div style="background:#2a1a0e;padding:7px 24px;
+              display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+                 font-size:9.5px;color:#b8883c;letter-spacing:0.05em;">
+      Receipt No.&nbsp; ${id}
+    </span>
+    <span style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+                 font-size:9.5px;color:#b8883c;letter-spacing:0.05em;">
+      Issued : ${issuedAt}
+    </span>
+  </div>
+
+  <!-- ══ BODY ═════════════════════════════════════════════════════════════ -->
+  <div style="padding:22px 24px 18px;">
+
+    <!-- Greeting section -->
+    <div style="text-align:center;margin-bottom:18px;">
+
+      <!-- Sub-heading — Cormorant italic, small, gold -->
+      <div style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+                  font-size:11px;color:#8a6820;letter-spacing:0.18em;
+                  margin-bottom:5px;">ஆழ்ந்த நன்றியுணர்வுடன்</div>
+
+      <!-- Main Thank-You — Noto Serif Tamil, large, dark -->
+      <div style="font-family:'Noto Serif Tamil',serif;font-size:29px;font-weight:700;
+                  color:#1a1208;line-height:1.3;margin-bottom:10px;">
+        நன்றி, ${donorName}.
+      </div>
+
+      <!-- ornament rule -->
+      <div style="display:flex;align-items:center;justify-content:center;
+                  gap:10px;margin-bottom:10px;">
+        <div style="flex:1;max-width:80px;height:1px;
+                    background:linear-gradient(90deg,transparent,#c4984e);"></div>
+        <span style="color:#c4984e;font-size:14px;line-height:1;">&#10039;</span>
+        <div style="flex:1;max-width:80px;height:1px;
+                    background:linear-gradient(90deg,#c4984e,transparent);"></div>
+      </div>
+
+      <!-- Blessing lines — Noto Sans Tamil, normal weight, dark brown -->
+      <div style="font-family:'Noto Sans Tamil',sans-serif;font-size:11.5px;
+                  font-weight:600;color:#3d2810;line-height:1.8;">
+        உங்கள் காணிக்கை கோயிலின் பராமரிப்புக்கு உதவுகிறது.
+      </div>
+      <div style="font-family:'Noto Sans Tamil',sans-serif;font-size:11.5px;
+                  font-weight:600;color:#3d2810;line-height:1.8;">
+        முருகப்பெருமான் உங்களுக்கு ஆரோக்கியம், செழிப்பு மற்றும் அமைதியை அருளட்டும்.
+      </div>
+    </div>
+
+    <!-- Section divider -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <div style="height:1px;flex:1;background:#ddc98a;"></div>
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+                   font-size:9px;color:#8a6820;letter-spacing:0.2em;
+                   text-transform:uppercase;white-space:nowrap;">
+        Donation Details &nbsp;·&nbsp;
+        <span style="font-family:'Noto Sans Tamil',sans-serif;font-style:normal;
+                     letter-spacing:0;font-size:9px;">நன்கொடை விவரங்கள்</span>
+      </span>
+      <div style="height:1px;flex:1;background:#ddc98a;"></div>
+    </div>
+
+    <!-- ── Row 1: Donator Name (full width) ── -->
+    <div style="display:flex;">
+      ${card({
+        accent: "#8B1A14",
+        enLabel: "Donator Name",
+        taLabel: "நன்கொடையாளர் பெயர்",
+        value: donorName,
+        valStyle: "font-family:'Noto Sans Tamil',sans-serif;font-size:14px;font-weight:700;color:#1a1208;line-height:1.4;"
+      })}
+    </div>
+
+    <!-- ── Row 2: Phone + Email ── -->
+    <div style="display:flex;gap:9px;margin-top:9px;align-items:stretch;">
+      ${card({
+        accent: "#c4984e",
+        enLabel: "Phone",
+        taLabel: "தொலைபேசி",
+        value: donorPhone
+      })}
+      ${card({
+        accent: "#c4984e",
+        enLabel: "Email",
+        taLabel: "மின்னஞ்சல்",
+        value: donorEmail,
+        valStyle: "font-family:'Noto Sans Tamil',sans-serif;font-size:11px;font-weight:700;color:#1a1208;line-height:1.4;word-break:break-all;"
+      })}
+    </div>
+
+    <!-- ── Row 3: Amount + Date ── -->
+    <div style="display:flex;gap:9px;margin-top:9px;align-items:stretch;">
+      ${card({
+        accent: "#8B1A14",
+        bg: "#fff8ee",
+        enLabel: "Amount",
+        taLabel: "தொகை",
+        value: `&#8377;&thinsp;${amtStr}`,
+        valStyle: "font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;font-weight:600;color:#8B1A14;line-height:1.2;letter-spacing:0.02em;"
+      })}
+      ${card({
+        accent: "#c4984e",
+        enLabel: "Date",
+        taLabel: "தேதி",
+        value: issuedAt,
+        valStyle: "font-family:'Cormorant Garamond',Georgia,serif;font-size:11px;font-weight:600;color:#1a1208;line-height:1.4;letter-spacing:0.01em;"
+      })}
+    </div>
+
+    <!-- ── Row 4: Payment Mode (full width) ── -->
+    <div style="display:flex;margin-top:9px;">
+      ${card({
+        accent: "#c4984e",
+        enLabel: "Payment Mode",
+        taLabel: "பணம் செலுத்தும் முறை",
+        value: `UPI &nbsp;·&nbsp; ${upiId}`
+      })}
+    </div>
+
+    <!-- ── TOTAL BAND ──────────────────────────────────────────────── -->
+    <div style="background:linear-gradient(135deg,#1a1208 0%,#2e1c0c 100%);
+                border-radius:9px;margin-top:16px;padding:15px 22px;
+                display:flex;justify-content:space-between;align-items:center;
+                border:1px solid rgba(196,152,78,0.3);">
+      <div>
+        <!-- English — Cormorant italic, muted gold -->
+        <div style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+                    font-size:10px;color:rgba(196,152,78,0.7);
+                    letter-spacing:0.22em;text-transform:uppercase;margin-bottom:4px;">
+          Total Donation
+        </div>
+        <!-- Tamil — Noto Serif Tamil, bright gold -->
+        <div style="font-family:'Noto Serif Tamil',serif;font-size:12.5px;
+                    font-weight:700;color:#c4984e;line-height:1.4;">
+          மொத்த நன்கொடை
+        </div>
+      </div>
+      <!-- Amount — Cormorant, large, pale gold -->
+      <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:38px;
+                  font-weight:600;color:#f5d580;letter-spacing:0.03em;line-height:1;">
+        &#8377;&thinsp;${amtStr}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ FOOTER ════════════════════════════════════════════════════════════ -->
+  <div style="border-top:1px solid #ddc98a;margin:0 26px;"></div>
+  <div style="padding:12px 24px 16px;text-align:center;">
+    <div style="font-family:Georgia,serif;font-size:8.5px;color:#666;line-height:1.9;">
+      This is a system-generated receipt of a UPI donation. No signature is required.<br/>
+      For queries: gokulsaravanana663@gmail.com &middot; +91 98765 43210
+    </div>
+    <div style="margin-top:9px;text-align:right;font-family:'Noto Sans Tamil',Georgia,serif;
+                font-size:8px;color:#8a6820;font-style:italic;">
+      ஸ்ரீ சுப்பிரமணியர் கோயில் &middot; இணையவழி நன்கொடை தளம்
+    </div>
+  </div>
+
+</div>
+</body>
+</html>`;
+}
+
+/* ── Main PDF generator ────────────────────────────────────────────────── */
+
 /**
- * Generate a themed PDF receipt for a donation.
+ * Generate a Tamil-styled PDF receipt for a donation.
  *
  * @param {Object} params
- * @param {string} params.name        Donor name
- * @param {string} params.phone       Donor phone
- * @param {string} params.email       Donor email
- * @param {number|string} params.amount  Donation amount in INR
- * @param {string} [params.upiId]     UPI id receipt was paid to
- * @param {string} [params.receiptId] Optional pre-generated receipt id
- * @returns {Promise<{ dataUrl:string, base64:string, blob:Blob, filename:string, receiptId:string, issuedAt:string }>}
+ * @param {string}        params.name       Donor name
+ * @param {string}        params.phone      Donor phone
+ * @param {string}        params.email      Donor email
+ * @param {number|string} params.amount     Donation amount in INR
+ * @param {string}        [params.upiId]    UPI ID the donation was paid to
+ * @param {string}        [params.receiptId] Optional pre-generated receipt ID
+ * @returns {Promise<{ dataUrl, base64, blob, filename, receiptId, issuedAt }>}
  */
 export async function generateReceiptPdf({
   name,
@@ -183,215 +416,62 @@ export async function generateReceiptPdf({
   upiId = "srialayam@upi",
   receiptId,
 } = {}) {
-  const JsPDF = await loadJsPdf();
-  const doc = new JsPDF({ unit: "pt", format: "a4" });
+  const [JsPDF, html2canvas] = await Promise.all([loadJsPdf(), loadHtml2Canvas()]);
 
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 36;
-  const innerLeft = margin + 18;
-  const innerRight = pageWidth - margin - 18;
-  const contentWidth = innerRight - innerLeft;
-
-  const id = receiptId || makeReceiptId();
+  const id       = receiptId || makeReceiptId();
   const issuedAt = formatDate(new Date());
 
-  // ---------- Page background (parchment) ----------
-  setColor(doc, "setFillColor", THEME.parchment);
-  doc.rect(0, 0, pageWidth, pageHeight, "F");
+  /* 1. Build a hidden iframe to host the receipt HTML (avoids style bleed) */
+  const iframe = document.createElement("iframe");
+  iframe.style.cssText =
+    "position:fixed;left:-9999px;top:0;width:595px;height:842px;border:none;visibility:hidden;";
+  document.body.appendChild(iframe);
 
-  // Outer brass border
-  setColor(doc, "setDrawColor", THEME.brass);
-  doc.setLineWidth(2);
-  doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin, "S");
+  const iDoc = iframe.contentDocument || iframe.contentWindow.document;
+  iDoc.open();
+  iDoc.write(buildReceiptHTML({ name, phone, email, amount, upiId, id, issuedAt }));
+  iDoc.close();
 
-  // Inner deep border
-  setColor(doc, "setDrawColor", THEME.brassDeep);
-  doc.setLineWidth(0.6);
-  doc.rect(
-    margin + 6,
-    margin + 6,
-    pageWidth - 2 * (margin + 6),
-    pageHeight - 2 * (margin + 6),
-    "S",
-  );
-
-  // ---------- Header band (sunset gradient via overlapping bands) ----------
-  const headerTop = margin + 20;
-  const headerHeight = 110;
-  setColor(doc, "setFillColor", THEME.vermillion);
-  doc.roundedRect(innerLeft, headerTop, contentWidth, headerHeight, 10, 10, "F");
-  setColor(doc, "setFillColor", THEME.brass);
-  doc.roundedRect(innerLeft, headerTop + headerHeight - 28, contentWidth, 28, 10, 10, "F");
-
-  // Header text — Tamil + English temple name
-  setColor(doc, "setTextColor", [255, 248, 232]);
-  doc.setFont("times", "bold");
-  doc.setFontSize(22);
-  doc.text("SRI SUBRAMANIYAR TEMPLE", pageWidth / 2, headerTop + 38, {
-    align: "center",
-  });
-  doc.setFont("times", "italic");
-  doc.setFontSize(11);
-  doc.text("Sri Valli Devasena Sametha Subramaniyar Aalayam", pageWidth / 2, headerTop + 56, {
-    align: "center",
-  });
-  doc.setFont("times", "normal");
-  doc.setFontSize(9);
-  doc.text("Inamkariyandhal, Tiruvannamalai District — 606604", pageWidth / 2, headerTop + 70, {
-    align: "center",
+  /* 2. Wait for fonts to load inside the iframe */
+  await new Promise((res) => {
+    const tryFonts = () =>
+      (iframe.contentWindow.document.fonts?.ready ?? Promise.resolve())
+        .then(res)
+        .catch(res);
+    // Give the font link element a moment to fire
+    setTimeout(tryFonts, 800);
   });
 
-  // Receipt eyebrow on brass band
-  setColor(doc, "setTextColor", [40, 24, 12]);
-  doc.setFont("times", "bold");
-  doc.setFontSize(10);
-  doc.text("DONATION RECEIPT  ·  தான ரசீது", pageWidth / 2, headerTop + headerHeight - 10, {
-    align: "center",
+  /* 3. Capture the receipt element with html2canvas */
+  const receiptEl = iDoc.getElementById("receipt-root");
+  const canvas = await html2canvas(receiptEl, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    logging: false,
+    backgroundColor: "#f8f4e9",
+    windowWidth: 595,
   });
 
-  // ---------- Receipt meta (id + date) ----------
-  let cursorY = headerTop + headerHeight + 28;
-  setColor(doc, "setTextColor", THEME.ink);
-  doc.setFont("times", "italic");
-  doc.setFontSize(10);
-  doc.text(`Receipt No.   ${id}`, innerLeft, cursorY);
-  doc.text(`Issued        ${issuedAt}`, innerRight, cursorY, { align: "right" });
+  /* 4. Clean up */
+  document.body.removeChild(iframe);
 
-  // Decorative gold rule
-  cursorY += 14;
-  setColor(doc, "setDrawColor", THEME.brass);
-  doc.setLineWidth(0.8);
-  doc.line(innerLeft, cursorY, innerRight, cursorY);
+  /* 5. Build PDF from the canvas image */
+  const doc = new JsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
+  const pageW = doc.internal.pageSize.getWidth();   // 595.28 pt
+  const pageH = doc.internal.pageSize.getHeight();  // 841.89 pt
 
-  // ---------- Greeting ----------
-  cursorY += 28;
-  setColor(doc, "setTextColor", THEME.brassDeep);
-  doc.setFont("times", "italic");
-  doc.setFontSize(11);
-  doc.text("With deep gratitude · நன்றியுடன்", pageWidth / 2, cursorY, {
-    align: "center",
-  });
+  const imgData   = canvas.toDataURL("image/jpeg", 0.95);
+  const imgW      = pageW;
+  const imgH      = (canvas.height / canvas.width) * imgW;
+  const yOffset   = imgH < pageH ? (pageH - imgH) / 2 : 0; // centre vertically if shorter
 
-  cursorY += 22;
-  setColor(doc, "setTextColor", THEME.ink);
-  doc.setFont("times", "bold");
-  doc.setFontSize(16);
-  doc.text(`Thank you, ${(name || "Devotee").trim()}`, pageWidth / 2, cursorY, { align: "center" });
+  doc.addImage(imgData, "JPEG", 0, yOffset, imgW, Math.min(imgH, pageH));
 
-  cursorY += 18;
-  doc.setFont("times", "normal");
-  doc.setFontSize(10.5);
-  setColor(doc, "setTextColor", [70, 50, 38]);
-  const blessing =
-    "Your offering supports the daily rituals, lamp services and upkeep of the temple. May Lord Murugan bless you with health, prosperity and peace.";
-  const blessingLines = doc.splitTextToSize(blessing, contentWidth - 40);
-  doc.text(blessingLines, pageWidth / 2, cursorY, { align: "center" });
-  cursorY += blessingLines.length * 13 + 8;
-
-  // ---------- Details card ----------
-  const cardX = innerLeft;
-  const cardY = cursorY;
-  const cardW = contentWidth;
-  const rows = [
-    ["Donor Name · பெயர்", (name || "—").trim()],
-    ["Phone · தொலைபேசி", (phone || "—").trim()],
-    ["Email · ஈ-மெயில்", (email || "—").trim()],
-    ["Amount · தொகை", formatINR(amount)],
-    ["Payment Mode · முறை", `UPI · ${upiId}`],
-    ["Date · தேதி", issuedAt],
-  ];
-  const rowHeight = 30;
-  const cardH = rowHeight * rows.length + 18;
-
-  // Card background
-  setColor(doc, "setFillColor", [253, 248, 235]);
-  doc.roundedRect(cardX, cardY, cardW, cardH, 10, 10, "F");
-  setColor(doc, "setDrawColor", THEME.brass);
-  doc.setLineWidth(1);
-  doc.roundedRect(cardX, cardY, cardW, cardH, 10, 10, "S");
-
-  // Rows
-  rows.forEach((row, i) => {
-    const y = cardY + 18 + i * rowHeight;
-    if (i > 0) {
-      setColor(doc, "setDrawColor", [232, 218, 188]);
-      doc.setLineWidth(0.4);
-      doc.line(cardX + 14, y - 12, cardX + cardW - 14, y - 12);
-    }
-    setColor(doc, "setTextColor", THEME.brassDeep);
-    doc.setFont("times", "italic");
-    doc.setFontSize(9.5);
-    doc.text(row[0], cardX + 18, y);
-
-    setColor(doc, "setTextColor", THEME.ink);
-    doc.setFont("times", "bold");
-    doc.setFontSize(11);
-    const valueLines = doc.splitTextToSize(String(row[1] || "—"), cardW - 220);
-    doc.text(valueLines, cardX + cardW - 18, y, { align: "right" });
-  });
-
-  cursorY = cardY + cardH + 28;
-
-  // ---------- Total band ----------
-  const totalBandH = 50;
-  setColor(doc, "setFillColor", THEME.ink);
-  doc.roundedRect(innerLeft, cursorY, contentWidth, totalBandH, 8, 8, "F");
-  setColor(doc, "setTextColor", THEME.brass);
-  doc.setFont("times", "italic");
-  doc.setFontSize(10);
-  doc.text("TOTAL DONATION", innerLeft + 24, cursorY + 22);
-  setColor(doc, "setTextColor", [255, 248, 232]);
-  doc.setFont("times", "bold");
-  doc.setFontSize(22);
-  doc.text(formatINR(amount), innerRight - 24, cursorY + 32, { align: "right" });
-
-  cursorY += totalBandH + 28;
-
-  // ---------- Footer / blessing ----------
-  setColor(doc, "setDrawColor", THEME.brass);
-  doc.setLineWidth(0.6);
-  doc.line(innerLeft + 60, cursorY, innerRight - 60, cursorY);
-
-  cursorY += 22;
-  setColor(doc, "setTextColor", THEME.vermillion);
-  doc.setFont("times", "italic");
-  doc.setFontSize(13);
-  doc.text("ஓம் சரவணபவ", pageWidth / 2, cursorY, { align: "center" });
-
-  cursorY += 18;
-  setColor(doc, "setTextColor", [90, 70, 52]);
-  doc.setFont("times", "normal");
-  doc.setFontSize(9);
-  doc.text(
-    "This is a system-generated receipt of a UPI donation. No signature is required.",
-    pageWidth / 2,
-    cursorY,
-    { align: "center" },
-  );
-  cursorY += 12;
-  doc.text(
-    "For queries: gokulsaravanana663@gmail.com  ·  +91 98765 43210",
-    pageWidth / 2,
-    cursorY,
-    { align: "center" },
-  );
-
-  // Bottom-right credit
-  setColor(doc, "setTextColor", THEME.brassDeep);
-  doc.setFont("times", "italic");
-  doc.setFontSize(8);
-  doc.text(
-    "Sri Subramaniyar Temple · Online Donation Portal",
-    pageWidth - margin - 18,
-    pageHeight - margin - 18,
-    { align: "right" },
-  );
-
-  // ---------- Output ----------
-  const dataUrl = doc.output("datauristring"); // "data:application/pdf;base64,..."
-  const base64 = dataUrl.split(",")[1] || "";
-  const blob = doc.output("blob");
+  /* 6. Output */
+  const dataUrl  = doc.output("datauristring");
+  const base64   = dataUrl.split(",")[1] || "";
+  const blob     = doc.output("blob");
   const filename = `donation-receipt-${id}.pdf`;
 
   return { dataUrl, base64, blob, filename, receiptId: id, issuedAt };
@@ -400,9 +480,9 @@ export async function generateReceiptPdf({
 /** Trigger a browser download of the receipt blob. */
 export function downloadReceiptBlob(blob, filename) {
   if (!blob || typeof window === "undefined") return;
-  const url = URL.createObjectURL(blob);
+  const url  = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  link.href = url;
+  link.href     = url;
   link.download = filename || "donation-receipt.pdf";
   document.body.appendChild(link);
   link.click();

@@ -18,22 +18,6 @@ import deityGanesha from "@/assets/5.jpeg";
 import { ArrowUpRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "ஸ்ரீ முருகன் ஆலயம் — Sri Muruga Sacred Temple" },
-      {
-        name: "description",
-        content:
-          "ஸ்ரீ முருகன் கோவில் வரலாறு, ஸ்தல புராணம், விழாக்கள், தினசரி பூஜை மற்றும் தான வசதிகள்.",
-      },
-      { property: "og:title", content: "ஸ்ரீ முருகன் ஆலயம் — Sri Muruga Temple" },
-      {
-        property: "og:description",
-        content:
-          "Discover Lord Murugan's sacred temple — history, sthala puranam, festivals, panchangam and donations.",
-      },
-    ],
-  }),
   component: Index,
 });
 

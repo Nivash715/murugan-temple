@@ -7,9 +7,10 @@ import donationImg from "@/assets/Donation.jpg";
 import upiQr from "@/assets/Upi.jpeg";
 import {
   generateReceiptPdf,
+  downloadReceiptBlob,
   preloadJsPdf,
 } from "@/lib/pdf-receipt";
-import { sendDonationReceipt } from "@/lib/donation-email";
+import { sendDonationReceipt, buildReceiptMailto } from "@/lib/donation-email";
 import { useDonationLog } from "@/lib/donation-log";
 import { useContent } from "@/lib/content-store";
 import {
@@ -19,6 +20,8 @@ import {
   Navigation,
   Upload,
   AlertTriangle,
+  Download,
+  Mail,
 } from "lucide-react";
 
 const TEMPLE_ADDRESS =
@@ -29,17 +32,6 @@ const MAP_EMBED = `https://www.google.com/maps?q=${TEMPLE_LAT},${TEMPLE_LNG}&hl=
 const MAP_DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${TEMPLE_LAT},${TEMPLE_LNG}`;
 
 export const Route = createFileRoute("/donate")({
-  head: () => ({
-    meta: [
-      { title: "ஆன்லைன் தான வசதி — Online Donation" },
-      {
-        name: "description",
-        content: "UPI / QR மூலம் பாதுகாப்பான ஆன்லைன் தான வசதி.",
-      },
-      { property: "og:title", content: "Online Donation · தானம்" },
-      { property: "og:description", content: "Secure UPI / QR donation." },
-    ],
-  }),
   component: DonatePage,
 });
 
@@ -74,18 +66,17 @@ function DonatePage() {
   const upiId = content?.payment?.upiId || DEFAULT_UPI_ID;
   const qrSrc = content?.payment?.upiQrImage || upiQr;
 
-  const [copied, setCopied] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [amount, setAmount] = useState(501);
+  const [copied, setCopied]       = useState(false);
+  const [name, setName]           = useState("");
+  const [phone, setPhone]         = useState("");
+  const [email, setEmail]         = useState("");
+  const [amount, setAmount]       = useState(501);
   const [screenshot, setScreenshot] = useState(null);
-  const [status, setStatus] = useState({ kind: "idle" });
+  const [status, setStatus]       = useState({ kind: "idle" });
 
   const log = useDonationLog();
 
-  // Pre-warm jsPDF so by the time the donor submits, the PDF download is
-  // (almost always) ready instantly with no perceived delay.
+  // Pre-warm jsPDF + html2canvas so the PDF download is ready instantly.
   useEffect(() => {
     preloadJsPdf();
   }, []);
@@ -95,9 +86,7 @@ function DonatePage() {
       await navigator.clipboard.writeText(upiId);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-      // Fallback for older browsers
+    } catch {
       const textArea = document.createElement("textarea");
       textArea.value = upiId;
       document.body.appendChild(textArea);
@@ -120,60 +109,70 @@ function DonatePage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     try {
-      const trimmedName = name.trim();
+      const trimmedName  = name.trim();
       const trimmedEmail = email.trim();
       const trimmedPhone = phone.trim();
       const numericAmount = Number(amount);
-
       if (!trimmedName || !trimmedEmail || !trimmedPhone || !numericAmount || !screenshot) {
         setStatus({
           kind: "error",
-          message: "தயவு செய்து அனைத்து புலங்களையும் நிரப்பவும். Please fill all fields including screenshot.",
+          message:
+            "தயவு செய்து அனைத்து புலங்களையும் நிரப்பவும். Please fill all fields including screenshot.",
         });
         return;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
         setStatus({
           kind: "error",
-          message: "சரியான ஈ-மெயில் முகவரியை உள்ளிடவும். Please enter a valid email.",
+          message:
+            "சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும். Please enter a valid email.",
         });
         return;
       }
 
       // 1. Pre-compute receipt metadata.
       const receiptId = makeReceiptId();
-      const issuedAt = formatIssuedAt();
+      const issuedAt  = formatIssuedAt();
 
-      // 2. Record in admin log immediately (synchronous, can't fail).
+      // 2. Record in admin log immediately (synchronous, cannot fail).
       const logEntry = log.addEntry({
         receiptId,
-        name: trimmedName,
-        phone: trimmedPhone,
-        email: trimmedEmail,
-        amount: numericAmount,
-        upiId,
+        name:          trimmedName,
+        phone:         trimmedPhone,
+        email:         trimmedEmail,
+        amount:        numericAmount,
+        upiId:         upiId,
         issuedAt,
-        emailStatus: "pending",
+        emailStatus:   "pending",
         screenshotName: screenshot?.name || "",
       }) || { id: receiptId };
 
       // 3. Show success page IMMEDIATELY — no spinner, no awaits.
       setStatus({
-        kind: "success",
-        logId: logEntry.id,
+        kind:      "success",
+        logId:     logEntry.id,
         receiptId,
         issuedAt,
         donorName: trimmedName,
+        // Carry donor data so the success panel can generate the PDF download.
+        donorData: {
+          name:   trimmedName,
+          phone:  trimmedPhone,
+          email:  trimmedEmail,
+          amount: numericAmount,
+          upiId:  upiId,
+          receiptId,
+        },
       });
       resetForm();
 
-      // 4. Background work — silently updates the log with receipt/email status.
+      // 4. Background — silently email receipt and update log.
       runBackgroundDelivery(logEntry.id, {
         receiptId,
         issuedAt,
-        name: trimmedName,
-        phone: trimmedPhone,
-        email: trimmedEmail,
+        name:   trimmedName,
+        phone:  trimmedPhone,
+        email:  trimmedEmail,
         amount: numericAmount,
       }, upiId);
     } catch (err) {
@@ -181,43 +180,42 @@ function DonatePage() {
       setStatus({
         kind: "error",
         message:
-          "சமர்ப்பிக்க முடியவில்லை. Submission failed: " + (err?.message || String(err)),
+          "சமர்ப்பிக்க முடியவில்லை. Submission failed: " +
+          (err?.message || String(err)),
       });
     }
   };
 
   const runBackgroundDelivery = async (logId, fields, currentUpiId) => {
+    // Step 1 — Generate PDF (optional; email always sends even if this fails).
     let receipt = null;
     try {
       receipt = await generateReceiptPdf({ ...fields, upiId: currentUpiId });
       log.updateEntry(logId, {
         receiptId: receipt.receiptId,
-        issuedAt: receipt.issuedAt,
+        issuedAt:  receipt.issuedAt,
       });
     } catch (err) {
-      console.warn("Background PDF gen failed:", err);
-      log.updateEntry(logId, {
-        emailStatus: "failed",
-        emailError: "PDF: " + (err?.message || err),
-      });
-      return;
+      console.warn("Background PDF gen failed (email will still send):", err);
+      // Don't return — fall through and send email without the PDF attachment.
     }
 
+    // Step 2 — Send email receipt regardless of whether PDF succeeded.
     try {
       await sendDonationReceipt({
         ...fields,
-        upiId: currentUpiId,
-        receiptId: receipt.receiptId,
-        issuedAt: receipt.issuedAt,
-        pdfBase64: receipt.base64,
-        pdfFilename: receipt.filename,
+        upiId:       currentUpiId,
+        receiptId:   receipt?.receiptId  || fields.receiptId,
+        issuedAt:    receipt?.issuedAt   || fields.issuedAt,
+        pdfBase64:   receipt?.base64     || "",
+        pdfFilename: receipt?.filename   || "",
       });
       log.updateEntry(logId, { emailStatus: "sent", emailError: "" });
     } catch (err) {
       console.warn("Background email failed:", err);
       log.updateEntry(logId, {
         emailStatus: "failed",
-        emailError: err?.message || "Email send failed",
+        emailError:  err?.message || "Email send failed",
       });
     }
   };
@@ -234,7 +232,7 @@ function DonatePage() {
         image={donationImg}
       />
 
-      {/* QR Code Section */}
+      {/* ── QR Code / UPI Section ──────────────────────────────────────── */}
       <section className="relative-z bg-gradient-sanctum text-parchment">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10 py-14 sm:py-20">
           <div className="max-w-2xl mx-auto">
@@ -243,7 +241,7 @@ function DonatePage() {
               <div className="relative bg-parchment text-ink rounded-3xl p-6 sm:p-8 shadow-temple border-2 border-brass">
                 <div className="text-center">
                   <div className="font-display italic text-brass-deep text-xs tracking-widest">
-                    SCAN & PAY · QR
+                    SCAN &amp; PAY · QR
                   </div>
                   <div className="font-tamil text-2xl font-bold mt-2">
                     QR ஸ்கேன் செய்யுங்கள்
@@ -261,12 +259,14 @@ function DonatePage() {
                     />
                   </a>
                 </div>
+
                 <div className="mt-5 text-center">
                   <div className="font-tamil-sans text-sm text-ink/70">UPI ID</div>
                   <div className="font-tamil-sans text-lg font-semibold text-ink mt-2">
                     {upiId}
                   </div>
                 </div>
+
                 <div className="mt-4 grid grid-cols-4 gap-2 text-center">
                   {["GPay", "PhonePe", "Paytm", "BHIM"].map((a) => (
                     <div
@@ -282,7 +282,7 @@ function DonatePage() {
                   className="mt-6 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-gradient-sunset text-parchment font-tamil font-semibold shadow-brass hover:shadow-temple transition-all"
                 >
                   {copied ? <Check size={18} /> : <Copy size={18} />}
-                  {copied ? "🦚Copied..." : `UPI: ${upiId}`}
+                  {copied ? "🦚 Copied..." : `UPI: ${upiId}`}
                 </button>
               </div>
             </div>
@@ -290,7 +290,7 @@ function DonatePage() {
         </div>
       </section>
 
-      {/* Donor Details Form */}
+      {/* ── Donor Details Form ─────────────────────────────────────────── */}
       <section className="relative-z mx-auto max-w-7xl w-full px-5 sm:px-6 lg:px-10 py-14 sm:py-20">
         <div className="ornament-divider mb-6">
           <span className="font-display italic text-xs sm:text-sm tracking-[0.3em]">
@@ -303,12 +303,17 @@ function DonatePage() {
 
         <div className="mt-10 max-w-2xl mx-auto bg-card rounded-2xl border-2 border-brass/30 p-6 sm:p-8">
           {status.kind === "success" ? (
-            <SuccessPanel status={status} onAgain={() => setStatus({ kind: "idle" })} />
+            <SuccessPanel
+              status={status}
+              onAgain={() => setStatus({ kind: "idle" })}
+            />
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+
+              {/* NAME */}
               <label className="block">
                 <span className="font-display italic text-brass text-xs tracking-widest">
-                  NAME · பெயர்
+                  NAME · பெயர் <span className="text-vermillion">*</span>
                 </span>
                 <input
                   type="text"
@@ -319,9 +324,10 @@ function DonatePage() {
                 />
               </label>
 
+              {/* PHONE */}
               <label className="block">
                 <span className="font-display italic text-brass text-xs tracking-widest">
-                  PHONE · தொலைபேசி
+                  PHONE · தொலைபேசி <span className="text-vermillion">*</span>
                 </span>
                 <input
                   type="tel"
@@ -332,25 +338,27 @@ function DonatePage() {
                 />
               </label>
 
+              {/* EMAIL */}
               <label className="block">
                 <span className="font-display italic text-brass text-xs tracking-widest">
-                  EMAIL · ஈ-மெயில்
+                  EMAIL · மின்னஞ்சல் <span className="text-vermillion">*</span>
                 </span>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="mt-2 w-full px-4 py-3 rounded-xl border-2 border-brass/40 bg-transparent text-ink placeholder:text-ink/40 outline-none focus:border-brass font-tamil-sans"
-                  placeholder="ஈ-மெயில் முகவரி"
+                  placeholder="மின்னஞ்சல் முகவரி"
                 />
                 <span className="mt-1 block font-tamil-sans text-[0.7rem] text-ink/60">
                   இந்த முகவரிக்கே PDF ரசீது அனுப்பப்படும்.
                 </span>
               </label>
 
+              {/* AMOUNT */}
               <label className="block">
                 <span className="font-display italic text-brass text-xs tracking-widest">
-                  AMOUNT · தொகை
+                  AMOUNT · தொகை <span className="text-vermillion">*</span>
                 </span>
                 <div className="mt-2 flex items-stretch rounded-xl overflow-hidden border-2 border-brass/40 focus-within:border-brass">
                   <span className="px-4 flex items-center bg-brass/10 font-tamil-sans text-xl text-ink">
@@ -373,9 +381,10 @@ function DonatePage() {
                 </div>
               </label>
 
+              {/* SCREENSHOT */}
               <label className="block">
                 <span className="font-display italic text-brass text-xs tracking-widest">
-                  SCREENSHOT · படிமம் பதிவேற்றம்
+                  SCREENSHOT · பரிவர்த்தனை ஸ்கிரீன்ஷாட் <span className="text-vermillion">*</span>
                 </span>
                 <div className="mt-2 relative">
                   <input
@@ -402,6 +411,11 @@ function DonatePage() {
                 </div>
               </label>
 
+              {/* Required note */}
+              <p className="font-tamil-sans text-[0.7rem] text-ink/50">
+                <span className="text-vermillion">*</span> கட்டாயமான புலங்கள் / Required fields
+              </p>
+
               {status.kind === "error" && (
                 <StatusMessage tone="error" message={status.message} />
               )}
@@ -417,7 +431,7 @@ function DonatePage() {
         </div>
       </section>
 
-      {/* Temple Location & Map */}
+      {/* ── Temple Location & Map ──────────────────────────────────────── */}
       <section className="relative-z mx-auto max-w-7xl w-full px-5 sm:px-6 lg:px-10 py-14 sm:py-20">
         <div className="ornament-divider mb-6">
           <span className="font-display italic text-xs sm:text-sm tracking-[0.3em]">
@@ -486,16 +500,16 @@ function StatusMessage({ tone, message }) {
   const palette =
     tone === "warning"
       ? {
-          bg: "bg-brass/10",
+          bg:     "bg-brass/10",
           border: "border-brass/50",
-          text: "text-brass-deep",
-          icon: <AlertTriangle size={18} className="shrink-0 text-brass-deep" />,
+          text:   "text-brass-deep",
+          icon:   <AlertTriangle size={18} className="shrink-0 text-brass-deep" />,
         }
       : {
-          bg: "bg-vermillion/10",
+          bg:     "bg-vermillion/10",
           border: "border-vermillion/40",
-          text: "text-vermillion",
-          icon: <AlertTriangle size={18} className="shrink-0 text-vermillion" />,
+          text:   "text-vermillion",
+          icon:   <AlertTriangle size={18} className="shrink-0 text-vermillion" />,
         };
   return (
     <div
@@ -516,6 +530,45 @@ function StatusMessage({ tone, message }) {
 }
 
 function SuccessPanel({ status, onAgain }) {
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState("");
+  const [emailStatus, setEmailStatus] = useState("sending"); // "sending" | "sent" | "failed"
+
+  // Poll donation log to reflect background email delivery status
+  const log = useDonationLog();
+  useEffect(() => {
+    if (!status.logId) return;
+    const entry = log.entries?.find?.((e) => e.id === status.logId);
+    if (entry?.emailStatus === "sent") setEmailStatus("sent");
+    else if (entry?.emailStatus === "failed") setEmailStatus("failed");
+    else setEmailStatus("sending");
+  }, [log.entries, status.logId]);
+
+  const handleDownload = async () => {
+    if (downloading || !status.donorData) return;
+    setDownloading(true);
+    setDownloadError("");
+    try {
+      const receipt = await generateReceiptPdf(status.donorData);
+      downloadReceiptBlob(receipt.blob, receipt.filename);
+    } catch (err) {
+      console.error("PDF download failed:", err);
+      setDownloadError("PDF தயாரிக்க முடியவில்லை. Please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  // Build a mailto: link so the donor can still get the receipt even if the
+  // email service is down or unconfigured — 100% frontend, no server needed.
+  const mailtoHref = status.donorData
+    ? buildReceiptMailto({
+        ...status.donorData,
+        receiptId: status.receiptId,
+        issuedAt: status.issuedAt,
+      })
+    : null;
+
   return (
     <div className="text-center py-6">
       <div className="mx-auto w-16 h-16 rounded-full bg-gradient-sunset text-parchment flex items-center justify-center shadow-brass">
@@ -533,7 +586,62 @@ function SuccessPanel({ status, onAgain }) {
       <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brass/40 bg-brass/10 font-display italic text-xs tracking-widest text-brass-deep">
         Receipt #{status.receiptId}
       </div>
+
+      {/* Email delivery status pill */}
+      <div className="mt-3 flex justify-center">
+        {emailStatus === "sending" && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brass/10 border border-brass/30 font-tamil-sans text-xs text-brass-deep">
+            <span className="inline-block w-3 h-3 border-2 border-brass border-t-transparent rounded-full animate-spin" />
+            மின்னஞ்சல் அனுப்புகிறது… Sending receipt email
+          </span>
+        )}
+        {emailStatus === "sent" && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-300 font-tamil-sans text-xs text-green-700">
+            <Check size={12} />
+            ரசீது மின்னஞ்சல் அனுப்பப்பட்டது · Receipt emailed ✓
+          </span>
+        )}
+        {emailStatus === "failed" && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 font-tamil-sans text-xs text-amber-800">
+            <AlertTriangle size={12} />
+            மின்னஞ்சல் தோல்வி — கீழே PDF அல்லது மின்னஞ்சல் பொத்தானை பயன்படுத்தவும்.
+          </span>
+        )}
+      </div>
+
+      {downloadError && (
+        <p className="mt-3 font-tamil-sans text-xs text-vermillion">{downloadError}</p>
+      )}
+
       <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+        {/* Download PDF receipt */}
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={downloading}
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-2 border-brass-deep text-ink font-tamil font-semibold hover:bg-brass/10 transition-all disabled:opacity-60"
+        >
+          {downloading ? (
+            <span className="animate-spin inline-block w-4 h-4 border-2 border-brass border-t-transparent rounded-full" />
+          ) : (
+            <Download size={18} />
+          )}
+          {downloading ? "தயாரிக்கிறது..." : "ரசீது PDF பதிவிறக்கம்"}
+        </button>
+
+        {/* mailto: fallback — opens the user's email client with receipt pre-filled.
+            Shown always so donors always have a way to get their receipt. */}
+        {mailtoHref && (
+          <a
+            href={mailtoHref}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-2 border-brass/60 text-ink font-tamil font-semibold hover:bg-brass/10 transition-all"
+          >
+            <Mail size={18} />
+            மின்னஞ்சல் வழி ரசீது
+          </a>
+        )}
+
+        {/* Donate again */}
         <button
           type="button"
           onClick={onAgain}

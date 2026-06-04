@@ -2,8 +2,8 @@
 /*  Image upload helper                                                       */
 /*                                                                            */
 /*  Reads a File from a file <input>, downscales it to a maximum dimension,   */
-/*  and returns a JPEG data URL. Keeps localStorage sane (most uploads end    */
-/*  up well under 500 KB).                                                    */
+/*  and returns a JPEG data URL. Keeps Firestore documents sane (most         */
+/*  uploads end up well under 500 KB after compression).                      */
 /* -------------------------------------------------------------------------- */
 
 const DEFAULT_MAX_DIMENSION = 1600;

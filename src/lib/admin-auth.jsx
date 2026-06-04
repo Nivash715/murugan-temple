@@ -1,93 +1,93 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updatePassword,
+  updateEmail,
+} from "firebase/auth";
+import { auth } from "./firebase";
 
 /* -------------------------------------------------------------------------- */
-/*  Simple client-side auth for the admin / content management panel.         */
-/*  NOTE: This is a frontend-only check intended for site administration on   */
-/*  a trusted machine. For real production security, replace this with a      */
-/*  proper backend / SSO integration.                                         */
+/*  Admin auth — powered by Firebase Authentication (email / password).       */
+/*                                                                            */
+/*  Setup (one-time, in Firebase Console):                                    */
+/*    Authentication → Sign-in method → Email/Password → Enable              */
+/*    Authentication → Users → Add user  (your admin email + password)       */
 /* -------------------------------------------------------------------------- */
 
-const SESSION_KEY = "temple-admin-session-v1";
-
-// Default admin credentials. The temple admin can change these
-// inside the editor (Account / கணக்கு tab) and they will be stored locally.
+// Exported for backward-compat with admin.jsx AccountTab "defaults" note.
+// With Firebase Auth there are no hard-coded defaults — set the account in
+// the Firebase Console before first use.
 export const DEFAULT_CREDENTIALS = {
-  userId: "admin",
-  password: "temple@123",
+  userId: "admin@yourtemple.com",
+  password: "",
 };
-
-const CREDENTIALS_KEY = "temple-admin-credentials-v1";
-
-function loadCredentials() {
-  if (typeof window === "undefined") return DEFAULT_CREDENTIALS;
-  try {
-    const raw = window.localStorage.getItem(CREDENTIALS_KEY);
-    if (!raw) return DEFAULT_CREDENTIALS;
-    const parsed = JSON.parse(raw);
-    return {
-      userId: parsed.userId || DEFAULT_CREDENTIALS.userId,
-      password: parsed.password || DEFAULT_CREDENTIALS.password,
-    };
-  } catch {
-    return DEFAULT_CREDENTIALS;
-  }
-}
-
-function saveCredentials(creds) {
-  try {
-    window.localStorage.setItem(CREDENTIALS_KEY, JSON.stringify(creds));
-  } catch {
-    /* ignore */
-  }
-}
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [isAuthed, setIsAuthed] = useState(false);
-  const [credentials, setCredentialsState] = useState(DEFAULT_CREDENTIALS);
+  const [firebaseUser, setFirebaseUser] = useState(null);
 
+  // Listen for Firebase auth state changes (persists across page reloads)
   useEffect(() => {
-    // hydrate session + credentials on the client
-    setCredentialsState(loadCredentials());
-    try {
-      const s = window.sessionStorage.getItem(SESSION_KEY);
-      if (s === "1") setIsAuthed(true);
-    } catch {
-      /* ignore */
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+      setIsAuthed(!!user);
+    });
+    return unsubscribe;
   }, []);
 
-  const login = useCallback((userId, password) => {
-    const creds = loadCredentials();
-    if (userId === creds.userId && password === creds.password) {
-      setIsAuthed(true);
-      try {
-        window.sessionStorage.setItem(SESSION_KEY, "1");
-      } catch {
-        /* ignore */
-      }
+  /** Sign in with email + password via Firebase Auth */
+  const login = useCallback(async (email, password) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       return { ok: true };
-    }
-    return {
-      ok: false,
-      error: "தவறான பயனர் பெயர் அல்லது கடவுச்சொல் (Invalid user id or password)",
-    };
-  }, []);
-
-  const logout = useCallback(() => {
-    setIsAuthed(false);
-    try {
-      window.sessionStorage.removeItem(SESSION_KEY);
     } catch {
-      /* ignore */
+      return {
+        ok: false,
+        error: "தவறான மின்னஞ்சல் அல்லது கடவுச்சொல் (Invalid email or password)",
+      };
     }
   }, []);
 
-  const updateCredentials = useCallback((next) => {
-    setCredentialsState(next);
-    saveCredentials(next);
+  /** Sign out */
+  const logout = useCallback(async () => {
+    await signOut(auth);
   }, []);
+
+  /**
+   * Update the admin's email and/or password via Firebase Auth.
+   * Requires a recent sign-in; if the session is too old Firebase will throw
+   * an error and the change will be skipped.
+   */
+  const updateCredentials = useCallback(
+    async ({ userId: newEmail, password: newPassword }) => {
+      const user = auth.currentUser;
+      if (!user) return;
+      try {
+        if (newEmail && newEmail !== user.email) {
+          await updateEmail(user, newEmail);
+        }
+        if (newPassword && newPassword.length >= 6) {
+          await updatePassword(user, newPassword);
+        }
+      } catch (err) {
+        console.error("updateCredentials error:", err);
+      }
+    },
+    [],
+  );
+
+  // Expose credentials in the same shape as before so admin.jsx doesn't change
+  const credentials = useMemo(
+    () => ({
+      userId: firebaseUser?.email ?? DEFAULT_CREDENTIALS.userId,
+      password: "",
+    }),
+    [firebaseUser],
+  );
 
   const value = useMemo(
     () => ({ isAuthed, credentials, login, logout, updateCredentials }),
@@ -103,9 +103,9 @@ export function useAuth() {
     return {
       isAuthed: false,
       credentials: DEFAULT_CREDENTIALS,
-      login: () => ({ ok: false, error: "Auth not ready" }),
-      logout: () => {},
-      updateCredentials: () => {},
+      login: async () => ({ ok: false, error: "Auth not ready" }),
+      logout: async () => {},
+      updateCredentials: async () => {},
     };
   }
   return ctx;

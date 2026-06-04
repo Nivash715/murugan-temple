@@ -1,10 +1,10 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
-import { ContentProvider } from "@/lib/content-store";
-import { AuthProvider } from "@/lib/admin-auth";
-import { DonationLogProvider } from "@/lib/donation-log";
+// ============================================================================
+//  Root route — pure SPA mode (no SSR, compatible with Hostinger static plan)
+//  HeadContent / Scripts / shellComponent were TanStack Start SSR features
+//  that required a live server. Removed entirely; meta tags live in index.html.
+// ============================================================================
+import { Outlet, Link, createRootRoute } from "@tanstack/react-router";
 import { LogoutToast } from "@/components/LogoutToast";
-
-import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
@@ -29,54 +29,9 @@ function NotFoundComponent() {
 }
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ஸ்ரீ ஆலயம் — Sacred Heritage Temple" },
-      {
-        name: "description",
-        content: "கோவில் வரலாறு, ஸ்தல புராணம் மற்றும் ஆலய அமைப்பு பற்றிய விரிவான தகவல்கள்.",
-      },
-      { name: "author", content: "Sri Aalayam" },
-      { property: "og:title", content: "ஸ்ரீ ஆலயம் — Sacred Heritage Temple" },
-      {
-        property: "og:description",
-        content: "Discover the history, sacred lore, and architecture of our ancient temple.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
 });
-
-function RootShell({ children }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <ContentProvider>
-          <AuthProvider>
-            <DonationLogProvider>{children}</DonationLogProvider>
-          </AuthProvider>
-        </ContentProvider>
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   return (

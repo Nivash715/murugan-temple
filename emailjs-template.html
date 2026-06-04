@@ -1,0 +1,358 @@
+<!doctype html>
+<!--
+  ================================================================
+  Sri Subramaniyar Temple — EmailJS Template
+  ================================================================
+  HOW TO USE:
+  1. Go to https://www.emailjs.com → Email Templates → your template
+  2. Click "Edit" on the template
+  3. Switch the body editor to "HTML" mode (not rich text)
+  4. Select-all and paste this entire file content
+  5. Save the template
+
+  Template fields to set in EmailJS:
+    To Email   : {{to_email}}
+    From Name  : Sri Subramaniyar Temple
+    Reply To   : {{reply_to}}
+    Subject    : {{subject}}
+    Body       : (this file — paste below)
+  ================================================================
+-->
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>நன்கொடை ரசீது — Donation Receipt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Serif+Tamil:wght@700&display=swap" rel="stylesheet"/>
+</head>
+<body style="margin:0;padding:0;background:#f6efdb;">
+
+<!-- ── outer wrapper ───────────────────────────────────────────────────── -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+       style="background:#f6efdb;padding:28px 0;">
+<tr><td align="center">
+
+<!-- ── card ────────────────────────────────────────────────────────────── -->
+<table role="presentation" width="600" cellpadding="0" cellspacing="0"
+       style="max-width:600px;width:100%;background:#f9f4e8;
+              border:2px solid #c4984e;border-radius:12px;overflow:hidden;">
+
+  <!-- ══ HEADER ══════════════════════════════════════════════════════════ -->
+  <tr>
+    <td style="background:#8B1A14;padding:28px 28px 22px;text-align:center;">
+
+      <!-- OM symbol -->
+      <div style="font-family:Georgia,serif;font-size:22px;
+                  color:rgba(245,213,128,0.85);margin-bottom:8px;">&#2384;</div>
+
+      <!-- Tamil temple name -->
+      <div style="font-family:'Noto Serif Tamil',Georgia,serif;font-size:24px;
+                  font-weight:700;color:#ffffff;letter-spacing:0.02em;line-height:1.4;">
+        ஸ்ரீ சுப்பிரமணியர் ஆலயம்
+      </div>
+
+      <!-- Address -->
+      <div style="font-family:'Noto Sans Tamil',Georgia,serif;font-size:10px;
+                  color:#f0cc70;margin-top:5px;letter-spacing:0.03em;line-height:1.5;">
+        இனாம்காரியந்தல், திருவண்ணாமலை மாவட்டம். 606604
+      </div>
+
+      <!-- thin gold rule -->
+      <div style="margin:14px auto 12px;height:1px;width:60%;
+                  background:#c4984e;opacity:0.5;"></div>
+
+      <!-- "Donation Receipt" English -->
+      <div style="font-family:Georgia,serif;font-style:italic;font-size:11px;
+                  color:#f0cc70;letter-spacing:0.35em;text-transform:uppercase;">
+        Donation Receipt
+      </div>
+      <!-- "Donation Receipt" Tamil -->
+      <div style="font-family:'Noto Serif Tamil',Georgia,serif;font-size:14px;
+                  font-weight:700;color:#fdf0d8;margin-top:4px;letter-spacing:0.03em;">
+        நன்கொடை ரசீது
+      </div>
+    </td>
+  </tr>
+
+  <!-- ══ META STRIP (Receipt # and Date) ═════════════════════════════════ -->
+  <tr>
+    <td style="background:#2a1a0e;padding:7px 24px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="font-family:Georgia,serif;font-style:italic;font-size:9.5px;
+                     color:#b8883c;letter-spacing:0.05em;">
+            Receipt No. &nbsp; {{receipt_id}}
+          </td>
+          <td align="right" style="font-family:Georgia,serif;font-style:italic;font-size:9.5px;
+                                    color:#b8883c;letter-spacing:0.05em;">
+            Issued : {{issued_at}}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- ══ BODY ════════════════════════════════════════════════════════════ -->
+  <tr>
+    <td style="padding:24px 24px 20px;">
+
+      <!-- ── Greeting ── -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+             style="margin-bottom:20px;">
+        <tr>
+          <td style="text-align:center;">
+
+            <!-- sub-heading -->
+            <div style="font-family:Georgia,serif;font-style:italic;font-size:11px;
+                        color:#8a6820;letter-spacing:0.18em;margin-bottom:5px;">
+              ஆழ்ந்த நன்றியுணர்வுடன்
+            </div>
+
+            <!-- main thank-you -->
+            <div style="font-family:'Noto Serif Tamil',Georgia,serif;font-size:26px;
+                        font-weight:700;color:#1a1208;line-height:1.3;margin-bottom:10px;">
+              நன்றி, {{to_name}}.
+            </div>
+
+            <!-- ornament divider -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="margin-bottom:12px;">
+              <tr>
+                <td style="border-bottom:1px solid #c4984e;width:40%;"></td>
+                <td style="text-align:center;padding:0 8px;color:#c4984e;font-size:14px;">&#10039;</td>
+                <td style="border-bottom:1px solid #c4984e;width:40%;"></td>
+              </tr>
+            </table>
+
+            <!-- blessing lines -->
+            <div style="font-family:'Noto Sans Tamil',Georgia,serif;font-size:11.5px;
+                        font-weight:600;color:#3d2810;line-height:1.8;">
+              உங்கள் காணிக்கை கோயிலின் பராமரிப்புக்கு உதவுகிறது.
+            </div>
+            <div style="font-family:'Noto Sans Tamil',Georgia,serif;font-size:11px;
+                        color:#3d2810;line-height:1.8;">
+              முருகப்பெருமான் உங்களுக்கு ஆரோக்கியம், செழிப்பு மற்றும் அமைதியை அருளட்டும்.
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ── Section divider ── -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+             style="margin-bottom:14px;">
+        <tr>
+          <td style="border-bottom:1px solid #ddc98a;"></td>
+          <td style="white-space:nowrap;padding:0 10px;font-family:Georgia,serif;
+                     font-style:italic;font-size:9px;color:#8a6820;
+                     letter-spacing:0.2em;text-transform:uppercase;">
+            Donation Details &nbsp;&middot;&nbsp; நன்கொடை விவரங்கள்
+          </td>
+          <td style="border-bottom:1px solid #ddc98a;"></td>
+        </tr>
+      </table>
+
+      <!-- ── Row 1: Donor Name (full width) ── -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+             style="border:1px solid #ddc98a;border-radius:8px;overflow:hidden;margin-bottom:9px;">
+        <tr>
+          <td width="4" style="background:#8B1A14;padding:0;"></td>
+          <td style="background:#ffffff;padding:11px 14px;">
+            <span style="display:block;font-family:Georgia,serif;font-style:italic;
+                         font-size:9px;font-weight:600;color:#7a5c1e;
+                         letter-spacing:0.07em;text-transform:uppercase;margin-bottom:2px;">
+              Donator Name
+            </span>
+            <span style="display:block;font-family:Georgia,serif;font-size:8.5px;
+                         color:#a07832;margin-bottom:6px;">நன்கொடையாளர் பெயர்</span>
+            <span style="font-family:'Noto Sans Tamil',Georgia,serif;font-size:14px;
+                         font-weight:700;color:#1a1208;">{{to_name}}</span>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ── Row 2: Phone | Email ── -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+             style="margin-bottom:9px;">
+        <tr>
+          <!-- Phone card -->
+          <td width="48%" valign="top" style="padding-right:5px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="border:1px solid #ddc98a;border-radius:8px;overflow:hidden;height:100%;">
+              <tr>
+                <td width="4" style="background:#c4984e;padding:0;"></td>
+                <td style="background:#ffffff;padding:11px 14px;">
+                  <span style="display:block;font-family:Georgia,serif;font-style:italic;
+                               font-size:9px;font-weight:600;color:#7a5c1e;
+                               letter-spacing:0.07em;text-transform:uppercase;margin-bottom:2px;">
+                    Phone
+                  </span>
+                  <span style="display:block;font-family:Georgia,serif;font-size:8.5px;
+                               color:#a07832;margin-bottom:6px;">தொலைபேசி</span>
+                  <span style="font-family:Georgia,serif;font-size:13px;
+                               font-weight:700;color:#1a1208;">{{donor_phone}}</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+
+          <td width="4%"></td>
+
+          <!-- Email card -->
+          <td width="48%" valign="top" style="padding-left:5px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="border:1px solid #ddc98a;border-radius:8px;overflow:hidden;height:100%;">
+              <tr>
+                <td width="4" style="background:#c4984e;padding:0;"></td>
+                <td style="background:#ffffff;padding:11px 14px;">
+                  <span style="display:block;font-family:Georgia,serif;font-style:italic;
+                               font-size:9px;font-weight:600;color:#7a5c1e;
+                               letter-spacing:0.07em;text-transform:uppercase;margin-bottom:2px;">
+                    Email
+                  </span>
+                  <span style="display:block;font-family:Georgia,serif;font-size:8.5px;
+                               color:#a07832;margin-bottom:6px;">மின்னஞ்சல்</span>
+                  <span style="font-family:Georgia,serif;font-size:10px;
+                               font-weight:700;color:#1a1208;word-break:break-all;">
+                    {{donor_email}}
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ── Row 3: Amount | Date ── -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+             style="margin-bottom:9px;">
+        <tr>
+          <!-- Amount card -->
+          <td width="48%" valign="top" style="padding-right:5px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="border:1px solid #ddc98a;border-radius:8px;overflow:hidden;
+                          background:#fff8ee;height:100%;">
+              <tr>
+                <td width="4" style="background:#8B1A14;padding:0;"></td>
+                <td style="background:#fff8ee;padding:11px 14px;">
+                  <span style="display:block;font-family:Georgia,serif;font-style:italic;
+                               font-size:9px;font-weight:600;color:#7a5c1e;
+                               letter-spacing:0.07em;text-transform:uppercase;margin-bottom:2px;">
+                    Amount
+                  </span>
+                  <span style="display:block;font-family:Georgia,serif;font-size:8.5px;
+                               color:#a07832;margin-bottom:6px;">தொகை</span>
+                  <span style="font-family:Georgia,serif;font-size:22px;
+                               font-weight:700;color:#8B1A14;">
+                    &#8377;&thinsp;{{donation_amount}}
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </td>
+
+          <td width="4%"></td>
+
+          <!-- Date card -->
+          <td width="48%" valign="top" style="padding-left:5px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="border:1px solid #ddc98a;border-radius:8px;overflow:hidden;height:100%;">
+              <tr>
+                <td width="4" style="background:#c4984e;padding:0;"></td>
+                <td style="background:#ffffff;padding:11px 14px;">
+                  <span style="display:block;font-family:Georgia,serif;font-style:italic;
+                               font-size:9px;font-weight:600;color:#7a5c1e;
+                               letter-spacing:0.07em;text-transform:uppercase;margin-bottom:2px;">
+                    Date
+                  </span>
+                  <span style="display:block;font-family:Georgia,serif;font-size:8.5px;
+                               color:#a07832;margin-bottom:6px;">தேதி</span>
+                  <span style="font-family:Georgia,serif;font-size:10px;
+                               font-weight:600;color:#1a1208;">{{issued_at}}</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ── Row 4: Payment Mode (full width) ── -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+             style="border:1px solid #ddc98a;border-radius:8px;overflow:hidden;margin-bottom:18px;">
+        <tr>
+          <td width="4" style="background:#c4984e;padding:0;"></td>
+          <td style="background:#ffffff;padding:11px 14px;">
+            <span style="display:block;font-family:Georgia,serif;font-style:italic;
+                         font-size:9px;font-weight:600;color:#7a5c1e;
+                         letter-spacing:0.07em;text-transform:uppercase;margin-bottom:2px;">
+              Payment Mode
+            </span>
+            <span style="display:block;font-family:Georgia,serif;font-size:8.5px;
+                         color:#a07832;margin-bottom:6px;">பணம் செலுத்தும் முறை</span>
+            <span style="font-family:Georgia,serif;font-size:13px;
+                         font-weight:700;color:#1a1208;">
+              UPI &nbsp;&middot;&nbsp; {{upi_id}}
+            </span>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ── TOTAL BAND ── -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+             style="background:#1a1208;border-radius:9px;
+                    border:1px solid rgba(196,152,78,0.3);">
+        <tr>
+          <td style="padding:15px 22px;vertical-align:middle;">
+            <div style="font-family:Georgia,serif;font-style:italic;font-size:10px;
+                        color:rgba(196,152,78,0.8);letter-spacing:0.22em;
+                        text-transform:uppercase;margin-bottom:4px;">
+              Total Donation
+            </div>
+            <div style="font-family:'Noto Serif Tamil',Georgia,serif;font-size:12px;
+                        font-weight:700;color:#c4984e;">
+              மொத்த நன்கொடை
+            </div>
+          </td>
+          <td align="right" style="padding:15px 22px;vertical-align:middle;">
+            <span style="font-family:Georgia,serif;font-size:34px;font-weight:700;
+                         color:#f5d580;letter-spacing:0.03em;">
+              &#8377;&thinsp;{{donation_amount}}
+            </span>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Om + note -->
+      <p style="margin:22px 0 4px;text-align:center;font-family:Georgia,serif;
+                font-style:italic;color:#8B1A14;font-size:15px;">Om Saravanabava</p>
+      <p style="margin:0;text-align:center;font-family:Georgia,serif;
+                font-size:10px;color:#666;">
+        This is a system-generated receipt. No signature required.
+      </p>
+
+    </td>
+  </tr>
+
+  <!-- ══ FOOTER ══════════════════════════════════════════════════════════ -->
+  <tr>
+    <td style="border-top:1px solid #ddc98a;background:#f9f4e8;
+               padding:12px 24px;text-align:center;">
+      <div style="font-family:Georgia,serif;font-size:8.5px;color:#666;line-height:1.9;">
+        For queries: gokulsaravanana663@gmail.com &middot; +91 98765 43210
+      </div>
+      <div style="margin-top:6px;font-family:Georgia,serif;font-style:italic;
+                  font-size:8px;color:#8a6820;">
+        ஸ்ரீ சுப்பிரமணியர் கோயில் &middot; இணையவழி நன்கொடை தளம்
+      </div>
+    </td>
+  </tr>
+
+</table>
+<!-- end card -->
+
+</td></tr>
+</table>
+<!-- end outer wrapper -->
+
+</body>
+</html>

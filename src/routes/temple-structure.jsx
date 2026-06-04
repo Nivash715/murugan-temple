@@ -8,18 +8,6 @@ import gopuram from "@/assets/12.jpeg";
 import { Ruler, Layers, Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/temple-structure")({
-  head: () => ({
-    meta: [
-      { title: "ஆலய அமைப்பு — Temple Structure" },
-      { name: "description", content: "கோபுரம், மண்டபம், சன்னதி உள்ளிட்ட ஆலய கட்டுமான விவரங்கள்." },
-      { property: "og:title", content: "ஆலய அமைப்பு — Temple Structure" },
-      {
-        property: "og:description",
-        content: "Detailed architecture of the gopuram, mandapams, and sanctums.",
-      },
-      { property: "og:image", content: aerial },
-    ],
-  }),
   component: TempleStructure,
 });
 

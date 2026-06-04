@@ -7,20 +7,6 @@ import { Eye, Bell, Calendar } from "lucide-react";
 import { useContent } from "@/lib/content-store";
 
 export const Route = createFileRoute("/festivals")({
-  head: () => ({
-    meta: [
-      { title: "விழாக்கள் & நிகழ்ச்சிகள் — Festivals & Celebrations" },
-      {
-        name: "description",
-        content: "வரவிருக்கும் விழாக்கள், தினசரி பூஜை வேளைகள் மற்றும் சிறப்பு தரிசன விவரங்கள்.",
-      },
-      { property: "og:title", content: "Festivals & Celebrations" },
-      {
-        property: "og:description",
-        content: "Upcoming festivals, daily timings, and special darshan.",
-      },
-    ],
-  }),
   component: FestivalsPage,
 });
 

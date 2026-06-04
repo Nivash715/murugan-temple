@@ -9,20 +9,6 @@ import video1 from "@/assets/video2.mp4";
 import { Clock, Calendar, Sparkles, Bell, Flame, Star } from "lucide-react";
 
 export const Route = createFileRoute("/events")({
-  head: () => ({
-    meta: [
-      { title: "நிகழ்ச்சிகள் & சேவைகள் — Events & Activities" },
-      {
-        name: "description",
-        content: "தினசரி பூஜை விவரங்கள், சிறப்பு நிகழ்வுகள் மற்றும் விழா அறிவிப்புகள்.",
-      },
-      { property: "og:title", content: "Temple Events & Activities" },
-      {
-        property: "og:description",
-        content: "Daily pooja, special events, and festival announcements.",
-      },
-    ],
-  }),
   component: EventsPage,
 });
 

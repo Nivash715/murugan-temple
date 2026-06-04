@@ -56,16 +56,6 @@ import {
 } from "@/lib/donation-export";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({
-    meta: [
-      { title: "உள்ளடக்க மேலாண்மை — Content Management" },
-      {
-        name: "description",
-        content:
-          "ஆலய இணையதள உள்ளடக்க நிர்வாக பலகை — தலைப்புகள், பகுதிகள், படங்கள், நாட்காட்டி குறிப்புகள்.",
-      },
-    ],
-  }),
   component: AdminPage,
 });
 

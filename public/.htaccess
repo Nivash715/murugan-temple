@@ -1,0 +1,46 @@
+# ============================================================================
+#  Sri Subramaniyar Temple — Apache configuration for Hostinger
+#  Place this file in your Hostinger public_html/ folder alongside index.html
+# ============================================================================
+
+# Enable the Rewrite engine
+Options -MultiViews
+RewriteEngine On
+
+# --- HTTPS redirect (uncomment after your SSL certificate is active) --------
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# --- SPA fallback -----------------------------------------------------------
+# Serve existing files and directories normally (assets, images, etc.)
+# For everything else, serve index.html so React Router can handle the route.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ /index.html [L]
+
+# --- Security headers -------------------------------------------------------
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# --- Compression (speeds up load time) --------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+# --- Browser caching --------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    # Versioned assets (Vite adds content hash) — cache for 1 year
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    # HTML — always re-validate
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
